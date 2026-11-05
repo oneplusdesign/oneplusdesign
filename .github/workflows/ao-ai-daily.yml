@@ -22,6 +22,7 @@ jobs:
         shell: bash
         run: |
           TODAY="$(date -u +%Y-%m-%d)"
+          if [[ "${{ github.event_name }}" == "push" ]]; then TODAY="2026-11-06"; fi
           echo "date=$TODAY" >> "$GITHUB_OUTPUT"
           if [[ "$TODAY" > "2026-11-05" && "$TODAY" < "2026-12-06" ]]; then
             echo "active=true" >> "$GITHUB_OUTPUT"
