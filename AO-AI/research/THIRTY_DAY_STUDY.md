@@ -10,6 +10,10 @@
 - **Alternating conditions:** five environment families (mixed, synergy, scarcity, balanced, adversarial) and three objective-evaluation budgets (12, 24, 48); deterministic unique case seeds per workflow execution / experiment.
 - **Output:** a compact, atomic-checkpoint JSON aggregate artifact saved by the workflow (35-day retention). Public GitHub workflow history is the only activity signal, not a claim of a conscious or always-active AI.
 
+### Autonomous hypothesis/configuration search
+
+Each scheduled session also executes a constrained evolutionary search of optimizer policy hypotheses: generate candidate configurations, evaluate them on training cases, select and mutate promising candidates, freeze a selected policy, and evaluate against a training-selected baseline on disjoint holdout cases. This is documented in [DISCOVERY_PROTOCOL.md](DISCOVERY_PROTOCOL.md). Results are exploratory; no scientific novelty or advantage has been demonstrated.
+
 ### What this does NOT do
 
 - No real-world data, model weights, external AI API or automated model hypothesis generator is involved.

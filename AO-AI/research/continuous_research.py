@@ -18,6 +18,7 @@ from pathlib import Path
 import time
 
 from daily_study import END, METHODS, START, run_study
+from discovery import discover
 
 FAMILIES = ("mixed", "synergy", "scarcity", "balanced", "adversarial")
 BUDGETS = (12, 24, 48)
@@ -57,6 +58,8 @@ def run_series(run_date: date, run_key: int, duration_seconds: float = 0,
         "completed_experiments": 0,
         "total_synthetic_cases": 0,
         "parameter_sweep": {},
+        "research_hypothesis_rounds": 0,
+        "research_hypothesis_outcomes": [],
         "limitations": [
             "Known baseline heuristics only; no AI researcher running on its own.",
             "Synthetic preferences cannot establish real-world human benefits.",
@@ -106,6 +109,27 @@ def run_series(run_date: date, run_key: int, duration_seconds: float = 0,
         i += 1
         report["completed_experiments"] = i
         report["total_synthetic_cases"] += count
+        if i % 5 == 0:
+            research = discover(
+                run_key=run_key * 100000 + i,
+                count_train=40, count_holdout=120, budget=12,
+                population=8, generations=3,
+            )
+            report["research_hypothesis_rounds"] += 1
+            report["research_hypothesis_outcomes"].append({
+                "round": i,
+                "policy_signature": research["policy_signature"],
+                "generated_policy": research["generated_policy"],
+                "hypotheses_evaluated": research["hypotheses_evaluated"],
+                "frozen_baseline_name": research["frozen_baseline_name"],
+                "holdout_paired_rate_delta": research["holdout_paired_rate_delta"],
+                "holdout_delta_bootstrap_ci95": research["holdout_delta_bootstrap_ci95"],
+                "research_breakthrough_claim": False,
+                "independent_replication": False,
+            })
+            # Include only a bounded recent activity trail; full history is not
+            # preserved across runs and repeated holdout scoring is exploratory.
+            report["research_hypothesis_outcomes"] = report["research_hypothesis_outcomes"][-25:]
         # Intermediate, atomic results preserve progress if a later iteration fails.
         if output and (i <= 2 or i % 25 == 0):
             report["finished_utc"] = datetime.now(timezone.utc).isoformat()
