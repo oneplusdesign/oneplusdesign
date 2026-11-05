@@ -1,0 +1,50 @@
+name: AΩ AI — first hypothesis discovery experiment
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ao-ai-first-discovery.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  hypothesis_experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Verify hypothesis generator and controls
+        run: python3 -m unittest discover -s AO-AI/research -p 'test_*.py' -v
+      - name: Generate, evolve and evaluate hypotheses on unseen synthetic cases
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import sys, json
+          from pathlib import Path
+          sys.path.insert(0, "AO-AI/research")
+          from discovery import discover
+          result = discover(
+              run_key=20261106,
+              count_train=80,
+              count_holdout=200,
+              budget=12,
+              population=12,
+              generations=4,
+          )
+          Path("ao-ai-first-discovery.json").write_text(
+              json.dumps(result, sort_keys=True, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(result, indent=2))
+          PY
+          echo '## AΩ | AI — One-off synthetic hypothesis experiment' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Research claim: exploratory, not independent replication and not a breakthrough.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Archive reproducible output
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ao-ai-first-discovery-data
+          path: ao-ai-first-discovery.json
+          retention-days: 35
+          if-no-files-found: error
