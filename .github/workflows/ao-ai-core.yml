@@ -18,6 +18,10 @@ jobs:
         with:
           persist-credentials: false
       - name: Show runtime
-        run: node --version
-      - name: Run behavioral checks
+        run: node --version && python3 --version
+      - name: Run deterministic action-gate checks
         run: node --test AO-AI/tests/core.test.mjs
+      - name: Run synthetic optimization benchmark tests
+        run: python3 -m unittest discover -s AO-AI/research -p 'test_*.py' -v
+      - name: Execute reference benchmark
+        run: python3 AO-AI/research/benchmark.py
