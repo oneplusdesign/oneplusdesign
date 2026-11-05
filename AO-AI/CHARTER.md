@@ -5,6 +5,21 @@
 
 The point of powerful artificial intelligence should not be maximum output, maximum control, or maximum profit for a few. Its legitimate purpose must include human flourishing, respect for life, autonomy, and the fair sharing of gains. More intelligence should demand more responsibility.
 
+### A→Ω: the common-good covenant
+
+**Founding instruction (5 November 2026):** From Alpha to Omega, everything this project researches, builds, publishes, proposes, or deploys must be directed toward the common good of all of us — not the private advantage of any one person, company, model, nation, or generation.
+
+This is a commitment to pursue, not a claim that we can guarantee perfect outcomes. We will assess actual effects on different people, including marginalized communities and future generations. When interests conflict, we will make trade-offs visible, search for genuinely mutually beneficial alternatives, and preserve rights, dignity, freedom, and meaningful human control. No person is disposable.
+
+**Operational test for every meaningful release:**
+1. **Whose good?** Name direct beneficiaries, excluded groups, and people who could bear costs.
+2. **What changes?** State testable evidence and measures of real-world benefit, harm, agency, and fairness, not just intent or model outputs.
+3. **Better together?** Seek alternatives that raise the shared outcome instead of shifting loss onto weaker parties.
+4. **Who decides?** Require authorization, independent challenge, representation of affected people, appeal, and correction.
+5. **Can we stop?** Document uncertainties, potential misuse, safeguards, and a rollback or shutdown path.
+
+If evidence does not support the claimed benefit, we revise the work rather than exaggerate it. No unpublished shortcuts, hidden interventions, or bypassing safeguards in the name of the common good.
+
 ### Six commitments
 
 1. **Care / Do not harm.** Identify foreseeable harms and affected people; never treat someone as expendable.
