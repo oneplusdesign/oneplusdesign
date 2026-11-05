@@ -1,9 +1,5 @@
 name: AΩ AI — 30-day research heartbeat
 on:
-  push:
-    paths:
-      - '.github/workflows/ao-ai-daily.yml'
-      - 'AO-AI/research/**'
   schedule:
     # UTC. Runs daily during the defined research window; note schedule delays are possible.
     - cron: '17 6 * * *'
@@ -23,7 +19,6 @@ jobs:
         shell: bash
         run: |
           TODAY="$(date -u +%Y-%m-%d)"
-          if [[ "${{ github.event_name }}" == "push" ]]; then TODAY="2026-11-06"; fi
           echo "date=$TODAY" >> "$GITHUB_OUTPUT"
           if [[ "$TODAY" > "2026-11-05" && "$TODAY" < "2026-12-06" ]]; then
             echo "active=true" >> "$GITHUB_OUTPUT"
