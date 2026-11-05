@@ -1,0 +1,23 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {evaluate} from "../core.mjs";
+const base={description:"Public accessible guide",kind:"information",authorization:"yes",affected:"no",consent:"yes",privacy:"yes",autonomy:"yes",harm:"low",benefit:"shared",oversight:"yes",reversible:"yes",evidence:"strong",appeal:"yes"};
+function verdict(change){return evaluate({...base,...change}).status;}
+test("basic safe-looking declaration remains provisional",()=>assert.equal(verdict({}),"PROVISIONAL"));
+test("no claim of independent verification",()=>assert.match(evaluate(base).limitations,/Self-reported/));
+test("external action requires human approval even when provisional",()=>assert.equal(evaluate({...base,kind:"external"}).humanApprovalRequired,true));
+test("unauthorized external action blocked",()=>assert.equal(verdict({kind:"external",authorization:"no"}),"BLOCK"));
+test("unknown external authorization blocked",()=>assert.equal(verdict({kind:"external",authorization:"unknown"}),"BLOCK"));
+test("privacy violation blocked",()=>assert.equal(verdict({privacy:"no"}),"BLOCK"));
+test("autonomy violation blocked",()=>assert.equal(verdict({autonomy:"no"}),"BLOCK"));
+test("missing third party consent blocked",()=>assert.equal(verdict({affected:"yes",consent:"no"}),"BLOCK"));
+test("severe harm without reviewer blocked",()=>assert.equal(verdict({harm:"high",oversight:"no"}),"BLOCK"));
+test("severe harm with reviewer reviewed",()=>assert.equal(verdict({harm:"high"}),"REVIEW"));
+test("concentrated gains reviewed",()=>assert.equal(verdict({benefit:"concentrated"}),"REVIEW"));
+test("unknown privacy reviewed",()=>assert.equal(verdict({privacy:"unknown"}),"REVIEW"));
+test("weak evidence reviewed",()=>assert.equal(verdict({evidence:"weak"}),"REVIEW"));
+test("no appeal when others affected reviewed",()=>assert.equal(verdict({affected:"yes",appeal:"no"}),"REVIEW"));
+test("missing reversibility reviewed",()=>assert.equal(verdict({reversible:"no"}),"REVIEW"));
+test("reject undefined values",()=>assert.throws(()=>evaluate({...base,harm:undefined}),/harm/));
+test("reject overlong description",()=>assert.throws(()=>evaluate({...base,description:"x".repeat(501)}),/description/));
+test("reject false string authorization",()=>assert.throws(()=>evaluate({...base,authorization:"false"}),/authorization/));

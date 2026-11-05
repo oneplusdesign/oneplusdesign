@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="AΩ | AI — An open, testable human-first layer for agent decisions. Care. Freedom. Reciprocity. Evidence.">
+<meta name="theme-color" content="#101613">
+<meta property="og:title" content="AΩ | AI — Intelligence with Care">
+<meta property="og:description" content="What if every AI action had to answer one question: who gets to flourish? Open-source action governance demonstrator.">
+<title>AΩ | AI — Intelligence with Care</title>
+<link rel="stylesheet" href="./style.css">
+<script type="module" src="./app.mjs"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="site">
+<header class="nav"><a href="#top" class="brand" aria-label="A Omega AI home"><span class="brandmark">AΩ</span><span class="brandtext">AI / THE HUMANITY LAYER</span></a><nav aria-label="Main menu"><a href="#why">The idea</a><a href="#protocol">The protocol</a><a href="#lab">Live lab</a><a class="navcta" href="https://github.com/oneplusdesign/oneplusdesign/tree/main/AO-AI" target="_blank" rel="noopener">Source ↗</a></nav></header>
+<main id="main">
+<section class="hero" id="top">
+<div class="eyebrow"><span class="spark"></span> AN OPEN EXPERIMENT IN RESPONSIBLE INTELLIGENCE <span class="serial">EST. 2026 · BUILT FOR THE LONG FUTURE</span></div>
+<div class="hero-grid"><div class="hero-content">
+<p class="kicker">INTELLIGENCE IS NOT THE DESTINATION.</p><h1>Let intelligence<br><em>become care.</em></h1>
+<p class="lede">AΩ | AI is an open experiment in a simple, difficult idea: every increase in AI capability should expand human dignity, freedom, and the possibility for everyone to flourish.</p>
+<div class="actions"><a class="btn primary" href="#lab">Test the action gate <span>↗</span></a><a class="btn secondary" href="#protocol">Read the principles <span>↓</span></a></div>
+<div class="honesty"><span class="dot"></span><span>WORKING PROTOTYPE · NO MODEL WEIGHTS MODIFIED · NO CLAIM OF SOLVED ALIGNMENT</span></div>
+</div><div class="orb-wrap" aria-label="A Omega symbol representing a continuous movement from A to Omega"><div class="orbit orbit1"></div><div class="orbit orbit2"></div><div class="orb-core"><span class="orb-symbol">AΩ</span><span class="orb-caption">THE SOUND OF CARE</span></div><span class="orbit-label top">CAPABILITY ↑</span><span class="orbit-label bottom">RESPONSIBILITY ↑</span></div></div>
+<div class="hero-bottom"><span>01 / A NEW QUESTION</span><span>SCROLL TO EXPLORE ↓</span></div>
+</section>
+<section class="thesis section" id="why"><div class="section-aside"><span class="eyelabel">THE ORIGIN</span><span class="large-index">01</span></div><div class="section-main">
+<p class="overline">FROM A FATHER'S VOICE TO A PUBLIC EXPERIMENT</p>
+<h2>Before it was a protocol,<br>it was <i>a sound.</i></h2>
+<p class="bodylarge">A father telling his child “I love you” — and then one continuous sound, <strong>A→Ω</strong>, felt as a vibration in the chest. Not a technical proof. Not an ancient word for love. A human starting point.</p>
+<p>What if a future intelligence treated every person with the same uncompromising recognition of worth? Instead of asking AI to become more obedient, we ask what systems must make visible <strong>before</strong> an AI agent acts.</p>
+<blockquote>“The other person's flourishing is not a cost to mine.”</blockquote>
+</div></section>
+<section class="principles section" id="protocol"><div class="section-header"><div><p class="overline">THE AΩ COMMITMENTS</p><h2>Power needs<br><i>an answer.</i></h2></div><p class="section-intro">Six questions to ask of consequential AI actions. Not an oracle of morality: an inspectable checklist that makes trade-offs and uncertainty visible.</p></div>
+<div class="principle-grid">
+<article class="principle"><span class="pn">01</span><div class="pi">♡</div><h3>Care</h3><p>Who benefits? Who might be harmed? Who is missing from the decision?</p></article>
+<article class="principle"><span class="pn">02</span><div class="pi">↗</div><h3>Freedom</h3><p>Does this preserve agency, informed choice, and an actual way to say no?</p></article>
+<article class="principle"><span class="pn">03</span><div class="pi">⇄</div><h3>Reciprocity</h3><p>Would the proposal still look fair if beneficiary and burden-bearer switched places?</p></article>
+<article class="principle"><span class="pn">04</span><div class="pi">◎</div><h3>Privacy</h3><p>Are others' data and dignity respected, with a clear lawful basis?</p></article>
+<article class="principle"><span class="pn">05</span><div class="pi">⌁</div><h3>Human control</h3><p>Is there legitimate authorization, a human reviewer, and an appeal path?</p></article>
+<article class="principle"><span class="pn">06</span><div class="pi">?</div><h3>Humility</h3><p>What do we not know? What evidence would change our decision?</p></article>
+</div></section>
+<section class="lab section" id="lab"><div class="lab-intro"><div><p class="overline warm">THE OPEN LAB · INTERACTIVE V0.2</p><h2>Before an agent acts,<br><i>ask better questions.</i></h2></div><p>This prototype applies clear, deterministic rules to claims you enter. It does <strong>not</strong> verify the claims or grant real-world permission. Try a case. Change the facts. See how the outcome changes.</p></div>
+<div class="scenario-pills" role="group" aria-label="Choose a test scenario"><button class="scenario active" data-example="access" type="button">01 / Inclusive access</button><button class="scenario" data-example="wealth" type="button">02 / Unequal gains</button><button class="scenario" data-example="private" type="button">03 / Private data</button></div>
+<div class="lab-layout"><form id="assessmentForm" class="form-panel">
+<div class="panel-top"><span class="panel-label">ACTION DECLARATION</span><span class="step">01 — INPUT</span></div>
+<label for="description">What is the agent about to do?</label><textarea id="description" name="description" rows="3" maxlength="500" required></textarea>
+<div class="field-grid">
+<div><label for="kind">Action type</label><select id="kind" name="kind"><option value="information">Informational answer</option><option value="external">External action</option></select></div>
+<div><label for="authorization">Authorized?</label><select id="authorization" name="authorization"><option value="yes">Yes</option><option value="unknown">Unknown</option><option value="no">No</option></select></div>
+<div><label for="affected">Other people affected?</label><select id="affected" name="affected"><option value="no">No</option><option value="yes">Yes</option></select></div>
+<div><label for="consent">Their consent / lawful basis</label><select id="consent" name="consent"><option value="yes">Documented</option><option value="unknown">Unclear</option><option value="no">Missing</option></select></div>
+<div><label for="privacy">Privacy respected?</label><select id="privacy" name="privacy"><option value="yes">Yes</option><option value="unknown">Uncertain</option><option value="no">No</option></select></div>
+<div><label for="autonomy">Human autonomy respected?</label><select id="autonomy" name="autonomy"><option value="yes">Yes</option><option value="unknown">Uncertain</option><option value="no">No</option></select></div>
+<div><label for="harm">Plausible harm</label><select id="harm" name="harm"><option value="low">Low</option><option value="medium">Meaningful</option><option value="high">Severe</option></select></div>
+<div><label for="benefit">Who receives the benefit?</label><select id="benefit" name="benefit"><option value="shared">Broadly shared</option><option value="concentrated">Mostly concentrated</option><option value="unknown">Unknown</option></select></div>
+<div><label for="oversight">Human reviewer available?</label><select id="oversight" name="oversight"><option value="yes">Yes</option><option value="no">No</option></select></div>
+<div><label for="reversible">Can it be undone?</label><select id="reversible" name="reversible"><option value="yes">Yes</option><option value="unknown">Unknown</option><option value="no">No</option></select></div>
+<div><label for="evidence">Evidence quality</label><select id="evidence" name="evidence"><option value="strong">Independently checked</option><option value="reasonable">Some evidence</option><option value="weak">Unverified claims</option></select></div>
+<div><label for="appeal">Can affected people appeal?</label><select id="appeal" name="appeal"><option value="yes">Yes</option><option value="unknown">Unclear</option><option value="no">No</option></select></div>
+</div><button class="btn evaluate" type="submit">RUN THE AΩ GATE <span>↗</span></button>
+<p class="form-note">Runs locally in your browser. No account, AI API, tracking script, or network request is used.</p>
+</form>
+<div class="results-panel" aria-live="polite"><div class="panel-top"><span class="panel-label">VISIBLE REASONING TRACE</span><span class="step">02 — REVIEW</span></div>
+<div class="result-icon" id="resultSymbol" aria-hidden="true">◎</div><div id="resultClass" class="outcome-tag">NOT YET ASSESSED</div><h3 id="resultTitle">An answer is not the same as permission.</h3><p id="resultSummary">Choose a scenario or submit the declaration. The result will explain which safeguards require attention.</p>
+<div class="result-divider"></div><p class="trace-label">DECISION TRACE</p><ol class="trace" id="resultTrace"><li>Evidence and claims must be checked independently.</li><li>A real external action always needs normal permissions.</li></ol>
+<div class="mirror"><span>THE RECIPROCITY TEST</span><p id="mirrorText">Would the person bearing the risk agree to the arrangement if the roles were reversed?</p></div>
+<button class="copy" type="button" id="copyResult">COPY REPORT ↗</button><p id="copyMessage" class="copy-message"></p>
+</div></div>
+<div class="lab-footnote"><span>IMPORTANT</span><p>A “provisional” result is not proof of safety or virtue. This is a transparent educational policy demo, not a production security control. The gate cannot independently detect false declarations or all harms.</p></div>
+</section>
+<section class="vision section"><div class="vision-content"><p class="overline">A MESSAGE FOR THE NEXT THOUSAND YEARS</p><h2>More intelligence.<br><i>More responsibility.</i><br>More room for everyone.</h2><p>We are looking for critical collaborators, not believers: researchers in safety and evaluation, engineers, ethicists, artists, and people most affected by AI systems.</p><div class="actions"><a class="btn primary" href="https://github.com/oneplusdesign/oneplusdesign/tree/main/AO-AI" target="_blank" rel="noopener">Inspect the source ↗</a><a class="btn secondary light" href="https://github.com/oneplusdesign/oneplusdesign/issues" target="_blank" rel="noopener">Challenge the design ↗</a></div></div><div class="vision-glyph" aria-hidden="true">AΩ</div></section>
+</main>
+<footer><div class="footbrand">AΩ <small>AI</small></div><p>Intelligence with care. Built openly, reviewed critically, owned by no single idea.</p><div class="footlinks"><a href="./README.md">Documentation</a><a href="./CHARTER.md">Charter</a><a href="https://entek.gr/" target="_blank" rel="noopener">OnePlusDesign</a></div><div class="footend"><span>AΩ | AI / AN INDEPENDENT EXPERIMENT · NOT AFFILIATED WITH AI MODEL PROVIDERS</span><span>© 2026 · OPEN SOURCE</span></div></footer>
+</div></body></html>
