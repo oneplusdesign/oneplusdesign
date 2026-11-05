@@ -1,30 +1,40 @@
-# ΑΩ | AI — Αποστολή Έρευνας 01
-_5 Νοεμβρίου 2026 · Διαρκές σημείο επανεκκίνησης_
+# AΩ | AI — Research Milestone 01
 
-> **«Από το Α έως το Ω, ό,τι γίνει από σήμερα και μετά να είναι για το κοινό καλό όλων μας.»**
+**Status:** planned / not executed.
 
-Αυτή η αποστολή υπάρχει ώστε ο άνθρωπος που ξεκίνησε το έργο να μη χρειάζεται να θυμάται τα πάντα, να ξενυχτά ή να πληρώνει άσκοπα. Δεν είναι υπόσχεση επιστημονικής ανακάλυψης. Είναι έλεγχος του αν το ΑΩ μπορεί να προσφέρει κάτι μετρήσιμο.
+## Research objective
 
-## Ερώτημα προς απόδειξη
-**Μπορούμε να ανακαλύπτουμε περισσότερες *επαληθευμένες* αμοιβαία επωφελείς λύσεις από καθιερωμένες μεθόδους, με ίσο υπολογιστικό κόστος, χωρίς να παραβιάζουμε δικαιώματα ή ανθρώπινη ελευθερία;**
+Test whether a specified candidate search procedure finds feasible, Pareto-improving allocations more frequently or efficiently than standard optimization baselines, at matched computational cost.
 
-## Ελάχιστο πείραμα (προτεινόμενο — όχι ακόμη εκτελεσμένο)
-1. **Προεγγραφή:** Κλειδώνουμε εκ των προτέρων μεθοδολογία, τυχαίους σπόρους, προϋπολογισμό υπολογισμών, development/holdout σενάρια και κριτήριο επιτυχίας.
-2. **Δεδομένα:** Συνθετικές περιπτώσεις συνεργασίας 2–5 ενδιαφερομένων, με γνωστές συναρτήσεις ωφέλειας. Αποκλείουμε αληθινά προσωπικά δεδομένα και κρυφούς ισχυρισμούς.
-3. **Καθιερωμένες βάσεις:** Τυχαία αναζήτηση, weighted-sum optimization, Pareto frontier / ε-constraint methods, με ίδια πρόσβαση στις συναρτήσεις και ίδιο κόστος.
-4. **Προτεινόμενη νέα υπόθεση:** Αν δεν υπάρχει περιγράψιμος μηχανισμός που να διαφέρει ουσιαστικά από τα baselines, πρώτα βρίσκουμε κενό και *δεν* παρουσιάζουμε επανάληψη ως ανακάλυψη.
-5. **Μέτρα:** Εφικτές προτάσεις, πραγματική μεταβολή ωφέλειας **για κάθε ενδιαφερόμενο**, outcome του χειρότερα ωφελούμενου, Pareto efficiency, χρόνος/compute, παραβιάσεις περιορισμών.
-6. **Αρνητικό αποτέλεσμα:** Αν δεν υπάρχει υπεροχή σε ανεξάρτητα σενάρια, δημοσιεύουμε τη μη επιτυχία και αναθεωρούμε ή σταματάμε.
+## Formal acceptance criteria
 
-## Απαράβατοι όροι
-- Η ανθρώπινη αξιοπρέπεια, η συναίνεση, τα δικαιώματα και η δυνατότητα προσφυγής δεν εξαγοράζονται με αύξηση ενός συνολικού «score».
-- Κάθε ισχυρισμός για κοινό όφελος χρειάζεται εξωτερικά επαληθεύσιμη τεκμηρίωση.
-- Όχι πρόσθετα έξοδα για hosting, APIs, διαφημίσεις ή άλλες υπηρεσίες χωρίς τεκμηριωμένη ανάγκη και έγκριση.
-- Όχι παραβίαση δικλίδων ασφαλείας ή μη εξουσιοδοτημένες ενέργειες.
-- Ειλικρινής διάκριση: **το παρόν web demo είναι ένας deterministic checker, όχι αυτόνομος discovery engine ούτε λύση του AI alignment.**
+For a candidate \(x\), baseline \(x_0\), utility functions \(u_i\), and hard constraints \(C(x)\):
 
-## Το πρώτο επόμενο βήμα
-Εντοπισμός και σύγκριση της πιο συναφούς βιβλιογραφίας (multi-objective optimization, Nash bargaining, Pareto search, cooperative AI) και σύνταξη προεγγεγραμμένου benchmark πριν γραφτεί ο αλγόριθμος.
+1. \(C(x)=true\)
+2. \(u_i(x)\ge u_i(x_0)\) for all \(i\)
+3. \(u_j(x)>u_j(x_0)\) for at least one \(j\)
 
-## Για τον άνθρωπο που ξεκίνησε την ιδέα
-**Δεν χρειάζεται να τη θυμάσαι αύριο για να μην υπάρχει πια.** Αυτή η αποστολή διατηρεί τον σκοπό και τα όρια της προσπάθειας. Η επιτυχία δεν μετριέται σε ώρες που θυσιάζεις, ούτε σε τηλεφωνήματα από διάσημους ιδρυτές, αλλά σε πραγματικό όφελος που μπορούμε να αποδείξουμε.
+No improvement is asserted when the constraints exclude all viable alternatives.
+
+## Experimental plan
+
+1. Preregister datasets, random seeds, trial counts, thresholds and compute budgets.
+2. Implement synthetic 2–5-agent environments with specified utility functions.
+3. Measure random-search, weighted-sum and Pareto-frontier baselines.
+4. Propose a candidate mechanism only if a testable gap can be identified.
+5. Use held-out trials and report feasibility, per-agent deltas and compute.
+6. Publish positive, null and negative results, independently reproducible.
+
+## Measured results
+
+**None yet.** The existing deterministic policy gate is not the candidate optimizer.
+
+## Resource and safety constraints
+
+No paid model API, new hosting spend or real-world autonomous action is required for this milestone. External actions must be authorized. Legal, privacy and stakeholder rights constraints cannot be traded away for an aggregate utility gain.
+
+## Next deliverable
+
+A published synthetic benchmark specification and reference baseline implementations.
+
+Contact: **tasos.tsikriteas@gmail.com**

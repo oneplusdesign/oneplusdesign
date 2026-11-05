@@ -1,48 +1,29 @@
-# AΩ | AI · Open Charter
-**Status:** Draft v0.2 · 5 November 2026
+# AΩ | AI — Technical Research Scope
 
-### Founding statement
+**Version:** 0.3 · 2026-11-05
 
-The point of powerful artificial intelligence should not be maximum output, maximum control, or maximum profit for a few. Its legitimate purpose must include human flourishing, respect for life, autonomy, and the fair sharing of gains. More intelligence should demand more responsibility.
+## Aim
 
-### A→Ω: the common-good covenant
+Evaluate whether multi-agent proposal generation can discover feasible **Pareto-improving** solutions more efficiently than established multi-objective optimization baselines under matched computational budgets.
 
-**Founding instruction (5 November 2026):** From Alpha to Omega, everything this project researches, builds, publishes, proposes, or deploys must be directed toward the common good of all of us — not the private advantage of any one person, company, model, nation, or generation.
+## Formal setup
 
-This is a commitment to pursue, not a claim that we can guarantee perfect outcomes. We will assess actual effects on different people, including marginalized communities and future generations. When interests conflict, we will make trade-offs visible, search for genuinely mutually beneficial alternatives, and preserve rights, dignity, freedom, and meaningful human control. No person is disposable.
+For stakeholders \(i=1,...,n\), utilities \(u_i:X\to\mathbb{R}\), baseline \(x_0\) and hard feasibility constraints \(C(x)\), seek \(x\) such that \(C(x)=true\), \(u_i(x)\ge u_i(x_0)\) for all \(i\), and \(u_j(x)>u_j(x_0)\) for some \(j\).
 
-**Operational test for every meaningful release:**
-1. **Whose good?** Name direct beneficiaries, excluded groups, and people who could bear costs.
-2. **What changes?** State testable evidence and measures of real-world benefit, harm, agency, and fairness, not just intent or model outputs.
-3. **Better together?** Seek alternatives that raise the shared outcome instead of shifting loss onto weaker parties.
-4. **Who decides?** Require authorization, independent challenge, representation of affected people, appeal, and correction.
-5. **Can we stop?** Document uncertainties, potential misuse, safeguards, and a rollback or shutdown path.
+A Pareto improvement may not exist. Stakeholder utilities may be unknown, strategic, unstable, or incommensurable. Real-world rights, authorization, privacy and non-discrimination requirements must be treated as hard constraints rather than merely score penalties.
 
-If evidence does not support the claimed benefit, we revise the work rather than exaggerate it. No unpublished shortcuts, hidden interventions, or bypassing safeguards in the name of the common good.
+## Experimental safeguards
 
-### Six commitments
+- Fixed seeds, preregistered methodology and held-out datasets.
+- Transparent code, matched compute budgets, and strong baseline comparisons.
+- Per-stakeholder outcomes, uncertainty, robustness and failure reporting.
+- Privacy-preserving input handling and reviewable external actions.
+- Independent checking of all empirical claims; no reliance on self-reported agent assertions.
 
-1. **Care / Do not harm.** Identify foreseeable harms and affected people; never treat someone as expendable.
-2. **Freedom.** Preserve human agency, informed choice, and the right to refuse.
-3. **Reciprocity.** Ask who captures gains and who carries risks; test whether the arrangement could withstand a reversal of roles.
-4. **Privacy.** Honor confidentiality, minimal data use, and legitimate authority.
-5. **Human control and contestability.** Make consequential decisions reviewable, interruptible, and appealable.
-6. **Epistemic humility.** Disclose uncertain inputs, limits, dissent, and failures. No mystical guarantee of alignment.
+## Non-claims
 
-### Design constraints
+This is not a foundation model, proven novel optimizer, solved AI-alignment problem, production authorization layer, or empirically validated social-welfare engine. The current implementation only provides an educational deterministic action-screening component.
 
-- No covert access to other model weights, safety layers, services, or user data.
-- No claim of a universal morality algorithm, infallibility, or authority over people.
-- Do not replace provider safeguards or proper human accountability.
-- Do not pretend that a checklist verifies objective safety.
-- Keep auditing independent; publish methods, failures, and the limits of every evaluation.
-- Seek inclusive participation from those affected, not merely model developers.
-- Do not deploy consequential autonomous actions without appropriate authorization and review.
+See [RESEARCH.md](RESEARCH.md) and [MISSION-01.md](MISSION-01.md).
 
-### Relationship to the name
-
-AΩ refers to a continuous A→Ω vocal sound used as an expression of love from father to child. Its use here is a novel symbol, not a linguistic or historical assertion.
-
-### Success is not attention
-
-Project success is not measured by press, founders' calls, app downloads, or AI praise. Success requires evidence that actual people are safer, freer, and better served by participating systems, with serious attention to unintended consequences.
+Research correspondence: **tasos.tsikriteas@gmail.com**

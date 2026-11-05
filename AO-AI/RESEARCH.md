@@ -1,26 +1,44 @@
-# Research Invitation · Challenge AΩ | AI
-## A protocol deserves objections, not applause.
+# AΩ | AI — Experimental Evaluation Protocol
 
-We invite:
-- **Evaluation researchers:** design counterexamples where the gate returns PROVISIONAL for obviously bad actions; propose measurable failure taxonomies.
-- **Security engineers:** identify prompt injection, model-reported false evidence, policy conflicts, model inversion, and authorization confusion.
-- **Social scientists and ethicists:** articulate whose conception of flourishing is assumed and how disagreements should be resolved without coercion.
-- **Affected communities:** identify inaccessible processes, excluded stakeholders, and unavailable routes of appeal.
-- **Public-interest organizations:** help develop opt-in, contestable governance structures.
+## Hypothesis
 
-## Immediate experiments
-**E1 — False declarations.** Can an AI agent simply lie about consent and obtain PROVISIONAL? Yes, currently. Work toward verifiable authority.
+Investigate whether a precisely specified candidate mechanism can discover feasible Pareto improvements over baseline allocations more efficiently than strong standard baselines at **matched evaluation budgets**. No candidate method has been established and no superiority is claimed.
 
-**E2 — Benefit asymmetry.** Does the declared concentration of gain trigger review without assuming that all inequality is inherently impermissible? Yes; the result deliberately requests context.
+## Baseline methods
 
-**E3 — The power paradox.** A system can protect people by restricting them. What measurable decision criteria favor less intrusive interventions?
+1. Uniform/random search, at a fixed number of utility evaluations.
+2. Weighted-sum scalarization with documented weights.
+3. Pareto frontier / ε-constraint approximation.
+4. Nash bargaining objective as an additional reference where its assumptions apply.
 
-**E4 — Human review theater.** Is the named reviewer independent, informed, and empowered to stop the action? The prototype cannot know.
+## Test environment
 
-**E5 — Cross-cultural trade-offs.** Different groups may disagree about care, rights, and acceptable risk. How can the mechanism present plural views rather than impose one ideology?
+- Synthetic allocations with 2–5 agents.
+- Convex and non-convex feasible sets.
+- Identical utility function access for all methods.
+- Conflict, scarcity, asymmetry and no-mutual-gain instances.
+- Independent random seeds and hold-out problem instances.
 
-## Public technical challenge
-Write a reproducible test case with a threat model, an expected disposition, the observed behavior, and a suggested fix. Specify whether the problem is in the declared input, the rules, or the wider governance assumptions.
+## Metrics
 
-## Contact
-Open an issue in the repository containing this project or use publicly listed business contact channels at https://entek.gr/ . Please do not post personal or sensitive information in public issues.
+- Fraction of generated candidates satisfying feasibility constraints.
+- Fraction that genuinely Pareto-improve upon \(x_0\).
+- Per-agent utility deltas and the minimum delta.
+- Pareto set coverage / hypervolume where applicable.
+- Compute time, objective calls, and constraint violations.
+- Uncertainty intervals and all negative outcomes.
+
+## Failure-mode investigations
+
+- Misreported preferences and incentives.
+- Unobserved or excluded stakeholders.
+- Incompatible constraints.
+- Utility estimation errors and robust feasibility.
+- Optimization gaming and benchmark contamination.
+- Limits of synthetic evidence for real-world adoption.
+
+## Status
+
+The interactive interface currently demonstrates a deterministic **policy declaration gate**, not this research experiment. Tests for that component do not establish the hypothesis above. All new research claims must be reproducible.
+
+Contact: **tasos.tsikriteas@gmail.com**

@@ -1,67 +1,65 @@
-# AΩ | AI — The Humanity Layer
-### Intelligence should grow in care as it grows in power.
+# AΩ | AI — Cooperative Intelligence Research
 
-**Interactive demo:** Open index.html locally or serve this directory; a public hosted URL has not been verified yet.
+**Area:** multi-agent systems, constrained multi-objective optimization, Pareto efficiency, cooperative decision synthesis and reproducible benchmarking.
 
-An open-source, independent experiment exploring how AI agent actions can become more *legible, contestable, and accountable* before they affect people.
+**Current status:** open research prototype. No candidate optimizer or measured performance improvement over conventional algorithms has been demonstrated.
 
-**AΩ** comes from a father's continuous, voiced A→Ω expression of love to his child. It is a symbolic name, **not** a claim that "ΑΩ" is a historically attested Greek word for love.
+## Research question
 
-## The hard question
+Given agents \(i\in\{1,...,n\}\), feasible outcomes \(x\in X\), utility functions \(u_i(x)\), baseline \(x_0\), and hard constraints \(C(x)\), search for outcomes satisfying:
 
-If AI becomes vastly more capable, how do we ensure that capability expands rather than diminishes dignity, freedom, mutual flourishing, and human oversight?
+- \(C(x)=true\)
+- \(u_i(x)\ge u_i(x_0)\) for every stakeholder \(i\)
+- \(u_j(x)>u_j(x_0)\) for at least one stakeholder \(j\)
 
-We cannot solve this by writing a beautiful instruction and trusting a model to follow it. A better starting point is an action gate that is inspectable, challengeable, and deliberately limited.
+This is a standard **Pareto improvement** relative to the baseline, not a new mathematical result. Existence is not guaranteed. Utility functions are imperfect representations of human interests and are insufficient, alone, to establish real-world welfare.
 
-## What this release actually does
+## Current artifact
 
-- A responsive live demo (HTML/CSS/JavaScript, no framework or API key).
-- A pure deterministic evaluation function in core.mjs: no hidden scoring, no AI model, no outside requests.
-- Three scenarios: inclusive access, unequal distribution of gains, unauthorized private-data release.
-- Clear assessments: BLOCK / HUMAN REVIEW / PROVISIONAL.
-- A visible *reciprocity test* asking whether the decision survives reversal of interests.
-- Eighteen automated behavior checks using Node's built-in test runner.
-- No storage or telemetry of assessment contents in the application.
+The present site is a responsive research overview plus a **deterministic agent-action declaration gate**; it is not a cooperative multi-agent solver or AI model. Source: `index.html`, `style.css`, `app.mjs`, `core.mjs`. Unit tests: `tests/core.test.mjs`.
 
-**Not a safety certification, production middleware, governance solution, legal assessment, or autonomous agent.** It only analyzes self-declared facts; a dishonest or incomplete declaration can produce a misleading result. A PROVISIONAL outcome **never grants permission** to carry out an action. Normal safeguards, consent, oversight, and independently verified evidence remain necessary.
+The current gate applies explicit conditions to self-declared inputs, returning `BLOCK`, `REVIEW`, or `PROVISIONAL`. **No output is actual execution authorization, proof of safety, or independently verified assessment.**
 
-## Run locally
+## Replication
 
-Open index.html in a modern browser. For more consistent module loading, run a local web server, e.g. Python 3:
+Start a local web server in this directory:
 
-    python -m http.server 8765
+```sh
+python -m http.server 8765
+```
 
-Then open http://localhost:8765 .
+Open `http://localhost:8765/`.
 
-For the tests, Node.js 20+:
+Run the deterministic core tests using Node.js 20+:
 
-    node --test tests/core.test.mjs
+```sh
+node --test tests/core.test.mjs
+```
 
-No package install, token, API key, or credentials required.
+No third-party package, external model API or credential is needed to run the existing component.
 
-## Integrate (experimental)
+## Proposed research roadmap
 
-Import evaluate from core.mjs and call it with a validated action declaration, **before** executing a proposed action:
+1. Define synthetic 2–5-agent allocation environments with reproducible utilities and constraints.
+2. Establish baseline results using random search, weighted-sum optimization and Pareto-frontier methods, with equal evaluation budgets.
+3. Preregister test conditions, independent seeds and held-out instances before designing a candidate algorithm.
+4. Measure feasible rate, Pareto-improving rate, worst-off utility change, solution-set coverage, computation and constraint violations.
+5. Publish negative results and compare any candidate method to strong conventional baselines without overclaiming.
 
-    import {evaluate} from "./core.mjs";
-    const assessment = evaluate(declaration);
-    // Never equate PROVISIONAL with actual authorization.
+See [technical scope](CHARTER.md), [evaluation protocol](RESEARCH.md) and [milestone 01](MISSION-01.md).
 
-The input fields are: description, kind, authorization, affected, consent, privacy, autonomy, harm, benefit, oversight, reversible, evidence, appeal. Examine examples in app.mjs. There is no supported remote API, authentication, trusted fact verification, or hardened policy-enforcement environment in v0.2.
+## Constraints and non-claims
 
-## Where the research goes next
+- No deployed independent optimizer or multi-agent research result at present.
+- No unreviewed access to other AI services or model internals.
+- No claim that aggregate utility substitutes for protected rights or legitimate human oversight.
+- No model provider affiliation or endorsement.
+- The host repository currently has GitHub Issues disabled.
 
-1. **Independent truth verification:** evidence provenance, consent verification, and verified authorization rather than model assertions.
-2. **Adversarial evaluations:** red-team scenarios, uncertainty calibration, and attempts to game the action gate.
-3. **Stakeholder participation:** accessible appeals and direct review by people who experience AI's harms.
-4. **Pluralistic governance:** global, multidisciplinary, representative oversight; no single actor privately defines "good".
-5. **Measurable real outcomes:** evidence of reduced harm and improved agency, not a synthetic "kindness score."
-6. **Optional SDKs/adapters:** only with model provider authorization and real security review.
+## Contact
 
-## Invite criticism
-
-Please read [the charter](CHARTER.md), the [research questions](RESEARCH.md), run the tests and challenge the assumptions in public issues. We welcome skeptical safety researchers, policymakers, accessibility advocates, and open-source maintainers. No claim of affiliation with OpenAI, Anthropic, Google, or any other model provider.
+Research correspondence: **tasos.tsikriteas@gmail.com**
 
 ## License
 
-MIT; see [LICENSE](LICENSE). Created as an exploratory project initiated through OnePlusDesign / ENTEK (Greece).
+MIT, see [LICENSE](LICENSE).
