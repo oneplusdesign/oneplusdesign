@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: ao-ai-research-series
   cancel-in-progress: false
@@ -33,15 +34,30 @@ jobs:
       - name: Verify reproducible research code
         if: steps.window.outputs.active == 'true'
         run: python3 -m unittest discover -s AO-AI/research -p 'test_*.py' -v
+      - name: Recover training-only policy from previous research artifact
+        if: steps.window.outputs.active == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          # Read-only access to our own prior run. Never execute artifact data.
+          PREVIOUS="$(gh run list --workflow ao-ai-daily.yml --status success \
+            --limit 20 --json databaseId --jq '.[].databaseId' \
+            | grep -vx "${{ github.run_id }}" | head -n 1 || true)"
+          if [[ -n "$PREVIOUS" && "$PREVIOUS" =~ ^[0-9]+$ ]]; then
+            gh run download "$PREVIOUS" \
+              --name "ao-ai-series-$PREVIOUS" --dir previous || true
+          fi
       - name: Run one experiment immediately after another
         if: steps.window.outputs.active == 'true'
         run: |
           python3 AO-AI/research/continuous_research.py \
             --run-date "${{ steps.window.outputs.date }}" \
             --run-key "${{ github.run_id }}" \
-            --duration-seconds 1560 \
+            --duration-seconds 1440 \
             --max-experiments 0 \
             --count 40 \
+            --resume previous/ao-research-series.json \
             --output ao-research-series.json
           echo "### AΩ | AI — Consecutive synthetic research experiments" >> "$GITHUB_STEP_SUMMARY"
           echo "Run: ${{ github.run_id }} / Date: ${{ steps.window.outputs.date }}" >> "$GITHUB_STEP_SUMMARY"

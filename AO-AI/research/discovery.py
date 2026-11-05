@@ -193,7 +193,8 @@ def _paired_bootstrap_ci(candidate: list[int], baseline: list[int],
 
 def discover(run_key: int, count_train: int = 40, count_holdout: int = 120,
              budget: int = DEFAULT_BUDGET, population: int = 8,
-             generations: int = 3) -> dict:
+             generations: int = 3,
+             seed_hypothesis: Hypothesis | None = None) -> dict:
     """Propose -> evaluate on train -> mutate -> freeze -> test held-out ONCE.
 
     This is not LLM-based code invention; proposals are generated within a
@@ -210,7 +211,9 @@ def discover(run_key: int, count_train: int = 40, count_holdout: int = 120,
     fixed_seed = run_key * 13 + 99
     champions = []
     checked = set()
-    pool = [generate_hypothesis(rng) for _ in range(population)]
+    pool = ([seed_hypothesis] if seed_hypothesis is not None else [])
+    while len(pool) < population:
+        pool.append(generate_hypothesis(rng))
     candidate_evaluations = 0
     for gen in range(generations):
         scored = []
@@ -258,6 +261,9 @@ def discover(run_key: int, count_train: int = 40, count_holdout: int = 120,
         "run_key": run_key,
         "synthetic_only": True,
         "hypotheses_evaluated": candidate_evaluations,
+        "inherited_training_policy_signature": (
+            seed_hypothesis.signature() if seed_hypothesis else None
+        ),
         "generated_policy": asdict(selected),
         "policy_signature": selected.signature(),
         "train_cases": len(train),

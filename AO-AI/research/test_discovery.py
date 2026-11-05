@@ -42,6 +42,17 @@ class DiscoveryTests(unittest.TestCase):
         self.assertFalse(a["research_breakthrough_claim"])
         self.assertIn(a["frozen_baseline_name"], a["holdout_baselines_successes"])
 
+    def test_warm_start_train_only(self):
+        original = Hypothesis("min", 2, 0.1, 4, 5, "best")
+        result = discover(27, count_train=5, count_holdout=12,
+                          budget=8, population=4, generations=2,
+                          seed_hypothesis=original)
+        self.assertEqual(
+            result["inherited_training_policy_signature"],
+            original.signature(),
+        )
+        self.assertFalse(result["research_breakthrough_claim"])
+
     def test_paired_bootstrap(self):
         self.assertEqual(
             _paired_bootstrap_ci([1]*15, [0]*15, 13),

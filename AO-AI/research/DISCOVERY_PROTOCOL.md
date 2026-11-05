@@ -6,7 +6,7 @@ The scheduled worker now does more than rerun baseline examples. Every five shor
 
 1. **Proposes** an initial population of bounded, machine-readable optimizer policies; policy attributes include objective function, neighbor search radius, exploration rate, tournament size, restart interval and incumbent selection.
 2. **Evaluates** each proposal on synthetic **training** environments only.
-3. **Mutates** the best training candidates, then reevaluates; this is standard evolutionary algorithm configuration.
+3. **Mutates** the best training candidates, then reevaluates; this is standard evolutionary algorithm configuration. A strictly validated training-selected policy from the prior run can initialize a new training population, without using holdout outcomes for selection.
 4. **Freezes** the selected policy and strongest **training-selected** baseline.
 5. **Tests once** on disjoint synthetic **holdout** environments with matched objective-query budgets.
 6. **Stores** per-round candidate configuration, the holdout paired difference and exploratory 95% bootstrap confidence interval, including negative and null outcomes.

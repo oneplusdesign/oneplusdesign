@@ -18,7 +18,30 @@ from pathlib import Path
 import time
 
 from daily_study import END, METHODS, START, run_study
-from discovery import discover
+from discovery import Hypothesis, discover
+
+def load_training_policy(path: Path | None) -> Hypothesis | None:
+    """Read data only. Prior artifacts may seed TRAINING, never code or trust."""
+    if path is None or not path.is_file() or path.stat().st_size > 1_000_000:
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(raw, dict) or raw.get("synthetic_only") is not True:
+            return None
+        history = raw.get("research_hypothesis_outcomes", [])
+        if not isinstance(history, list) or not history:
+            return None
+        candidate = history[-1].get("generated_policy")
+        if not isinstance(candidate, dict):
+            return None
+        if set(candidate) != {
+            "objective", "radius", "explore", "tournament", "restart", "anchor"
+        }:
+            return None
+        return Hypothesis(**candidate)  # strict policy grammar validation
+    except (OSError, ValueError, TypeError, KeyError, AttributeError):
+        return None
+
 
 FAMILIES = ("mixed", "synergy", "scarcity", "balanced", "adversarial")
 BUDGETS = (12, 24, 48)
@@ -34,7 +57,8 @@ def _save_atomic(path: Path, report: dict) -> None:
 
 def run_series(run_date: date, run_key: int, duration_seconds: float = 0,
                max_experiments: int = 2, count: int = CASES_PER_EXPERIMENT,
-               output: Path | None = None) -> dict:
+               output: Path | None = None,
+               resume: Path | None = None) -> dict:
     """Consecutive parameter-sweep research experiments; no idle waits.
 
     A zero max_experiments means unlimited iterations bounded by time.
@@ -44,7 +68,9 @@ def run_series(run_date: date, run_key: int, duration_seconds: float = 0,
         raise ValueError("Invalid run configuration")
     if max_experiments == 0 and duration_seconds == 0:
         raise ValueError("Unbounded run: specify a positive duration")
+    prior_policy = load_training_policy(resume)
     report = {
+        "prior_training_policy_loaded": prior_policy is not None,
         "status": "experiment_series",
         "run_date": str(run_date),
         "run_key": run_key,
@@ -113,12 +139,14 @@ def run_series(run_date: date, run_key: int, duration_seconds: float = 0,
             research = discover(
                 run_key=run_key * 100000 + i,
                 count_train=40, count_holdout=120, budget=12,
-                population=8, generations=3,
+                population=8, generations=3, seed_hypothesis=prior_policy,
             )
+            prior_policy = Hypothesis(**research["generated_policy"])
             report["research_hypothesis_rounds"] += 1
             report["research_hypothesis_outcomes"].append({
                 "round": i,
                 "policy_signature": research["policy_signature"],
+                "inherited_training_policy_signature": research["inherited_training_policy_signature"],
                 "generated_policy": research["generated_policy"],
                 "hypotheses_evaluated": research["hypotheses_evaluated"],
                 "frozen_baseline_name": research["frozen_baseline_name"],
@@ -150,12 +178,13 @@ def main() -> None:
     parser.add_argument("--max-experiments", type=int, default=2)
     parser.add_argument("--count", type=int, default=CASES_PER_EXPERIMENT)
     parser.add_argument("--output", default="ao-research-series.json")
+    parser.add_argument("--resume", type=Path)
     args = parser.parse_args()
     report = run_series(
         date.fromisoformat(args.run_date), run_key=args.run_key,
         duration_seconds=args.duration_seconds,
         max_experiments=args.max_experiments,
-        count=args.count, output=Path(args.output),
+        count=args.count, output=Path(args.output), resume=args.resume,
     )
     print(json.dumps({
         "status": report["status"],
