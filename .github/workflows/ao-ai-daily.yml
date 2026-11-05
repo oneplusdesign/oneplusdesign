@@ -1,5 +1,9 @@
 name: AΩ AI — 30-day research heartbeat
 on:
+  push:
+    paths:
+      - '.github/workflows/ao-ai-daily.yml'
+      - 'AO-AI/research/**'
   schedule:
     # UTC. Runs daily during the defined research window; note schedule delays are possible.
     - cron: '17 6 * * *'
