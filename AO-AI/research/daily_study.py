@@ -27,12 +27,18 @@ EVALUATION_BUDGET = 24
 METHODS = ("uniform_random", "weighted_local_search", "maximin_local_search")
 
 
-def generate_case(seed: int, index: int) -> Case:
+def generate_case(seed: int, index: int, regime_override: str | None = None) -> Case:
     rng = Random(seed * 131071 + index)
-    regime = ("mixed", "synergy", "scarcity", "mixed")[index % 4]
+    regime = regime_override or ("mixed", "synergy", "scarcity", "mixed")[index % 4]
+    if regime not in ("mixed", "synergy", "scarcity", "balanced", "adversarial"):
+        raise ValueError("Unknown synthetic case family")
     actions = []
     for j in range(8):
         gains = [rng.randint(-5, 6) for _ in range(3)]
+        if regime == "balanced":
+            gains = [rng.randint(-3, 3) for _ in range(3)]
+        if regime == "adversarial":
+            gains = [rng.randint(-7, 3) for _ in range(3)]
         if regime == "scarcity":
             # Conserve total utility across the three agents.
             gains[2] = -gains[0] - gains[1]
@@ -118,7 +124,8 @@ def search(case: Case, options: list[tuple[str, ...]], method: str,
 
 
 def run_study(run_date: date, count: int = CASES_PER_DAY,
-              budget: int = EVALUATION_BUDGET) -> dict:
+              budget: int = EVALUATION_BUDGET, experiment_id: int = 0,
+              regime: str | None = None) -> dict:
     if not START <= run_date <= END:
         return {
             "status": "outside_30_day_window",
@@ -126,14 +133,18 @@ def run_study(run_date: date, count: int = CASES_PER_DAY,
             "executed": False,
             "research_breakthrough_claim": False,
         }
+    if experiment_id < 0:
+        raise ValueError("experiment_id must be nonnegative")
+    if regime is not None and regime not in ("mixed", "synergy", "scarcity", "balanced", "adversarial"):
+        raise ValueError("Unknown synthetic case family")
     if count < 1 or budget < 1:
         raise ValueError("Count and budget must both be positive")
-    date_seed = int(run_date.strftime("%Y%m%d"))
+    date_seed = int(run_date.strftime("%Y%m%d")) * 1000003 + experiment_id * 104729
     tally = {m: 0 for m in METHODS}
     possible = 0
     cases_with_no_solution = 0
     for index in range(count):
-        case = generate_case(date_seed, index)
+        case = generate_case(date_seed, index, regime_override=regime)
         options = candidate_bundles(case)
         # Exhaustive truth is computed ONLY for the final scoring oracle,
         # never supplied to search methods. It does not represent equal
@@ -156,6 +167,8 @@ def run_study(run_date: date, count: int = CASES_PER_DAY,
         "run_date": str(run_date),
         "executed": True,
         "deterministic_seed": date_seed,
+        "experiment_id": experiment_id,
+        "synthetic_family": regime or "mixed_regimes",
         "synthetic_cases": count,
         "objective_evaluations_per_method_per_case": budget,
         "cases_with_possible_mutual_gain": possible,

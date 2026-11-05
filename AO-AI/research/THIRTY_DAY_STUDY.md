@@ -1,29 +1,38 @@
-# AΩ | AI — 30-day scheduled research study
+# AΩ | AI — Consecutive Research Cycles (30-Day Trial)
 
-**Public technical scope. No personal narratives.**
+**Trial window (UTC):** 2026-11-06 to 2026-12-05 inclusive.
 
-- **Trial dates (UTC):** 2026-11-06 through 2026-12-05 (30 days).
-- **Scheduler:** GitHub Actions, daily at 06:17 UTC (08:17 in Greece in November).
-- **Compute:** GitHub-hosted Python standard library. No paid LLM API, no autonomous external action.
-- **Outputs:** one public Actions run per scheduled day, plus a machine-readable `daily-report.json` artifact (90-day retention).
-- **Location:** [workflow runs](https://github.com/oneplusdesign/oneplusdesign/actions/workflows/ao-ai-daily.yml).
+## Execution design
 
-## What happens automatically
+- **GitHub Actions schedule:** at minute 07 and 37 of every hour (UTC).
+- **Each run:** up to 26 minutes of back-to-back synthetic experiments, then runner exits; the next scheduled run starts a new sequence.
+- **Each experiment:** 40 distinct synthetic allocation environments, tested with *equal utility-query budgets* using uniform random, weighted local search and maximin local search.
+- **Alternating conditions:** five environment families (mixed, synergy, scarcity, balanced, adversarial) and three objective-evaluation budgets (12, 24, 48); deterministic unique case seeds per workflow execution / experiment.
+- **Output:** a compact, atomic-checkpoint JSON aggregate artifact saved by the workflow (35-day retention). Public GitHub workflow history is the only activity signal, not a claim of a conscious or always-active AI.
 
-For each scheduled day, the script uses a new deterministic calendar-derived seed to generate **80 synthetic** three-stakeholder allocation problems. Each has eight possible interventions and a budget of four interventions.
+### What this does NOT do
 
-It compares established reference search strategies under the **same objective-query budget (24 evaluations per method per problem)**: uniform random search, weighted-sum local search and maximin local search. The exact truth oracle is for scoring only, and its computational cost is *not* counted in method budgets; consequently the output is **not** a total compute or runtime comparison.
+- No real-world data, model weights, external AI API or automated model hypothesis generator is involved.
+- More simulations ≠ scientific discovery. Methods are known reference heuristics; output is observational, not evidence of a novel optimizer.
+- GitHub-hosted scheduled events are best-effort: queues, throttling and dropped events can produce gaps. A fully uninterrupted worker would require dedicated infrastructure.
+- Equal objective evaluations do not imply equal CPU wall-clock budgets.
+- No messages/emails are sent from GitHub Actions on ordinary runs.
 
-The script explicitly marks **`research_breakthrough_claim: false`**. A successful GitHub workflow run means that scripts executed successfully, not that a scientific breakthrough occurred. The present implementation generates changing test data, not new research hypotheses or autonomous algorithm modifications.
+### Reproduce
 
-## Success criteria for future research
+```sh
+python3 -m unittest discover -s AO-AI/research -p 'test_*.py' -v
+python3 AO-AI/research/continuous_research.py --run-date 2026-11-06 --run-key 17 --max-experiments 6 --count 40 --output ao-research-series.json
+```
 
-Before claiming an original technical advance, a new candidate method must be precisely specified, peer-reviewed for prior-art novelty, independently replicated on held-out cases, and outperform strong existing baselines under comparable information and compute budgets. Any claim must be backed by a public reproduction package and limitations.
+Study validation criteria and original research scope remain in [RESEARCH.md](../RESEARCH.md) and [MISSION-01.md](../MISSION-01.md).
 
-No automatic email is sent by this workflow. Any separate notification should require substantive independently verified evidence, not CI success or a subjective feeling.
+## Resource controls and exit conditions
 
-## End-of-window behavior
+- Jobs use only standard GitHub-hosted runners in a public repository, with **read-only repository permissions**. GitHub currently provides free standard hosted compute for public repositories; account-specific settings and storage billing should still be monitored.
+- Maximum 29 minute job timeout, no paid cloud services, no secrets, no autonomous writes or external actions.
+- Repo artifacts store aggregated synthetic measurements; no personal narratives.
+- After 2026-12-05, jobs immediately skip experiments. Removing the cron afterward requires a separate workflow edit or the scheduled research review.
+- New scientifically meaningful methods, independent replication and peer review remain necessary before any major scientific claim.
 
-After 2026-12-05, scheduled workflow invocations **skip the experiment**. The GitHub scheduler entry will still exist and will trigger a very short window check until someone disables the workflow; GitHub Actions cannot natively express a one-off 30-day cron with automatic expiry. Disable the workflow after the study to eliminate even that overhead.
-
-Research correspondence: **tasos.tsikriteas@gmail.com**.
+**Research contact:** tasos.tsikriteas@gmail.com.

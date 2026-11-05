@@ -1,0 +1,146 @@
+"""AΩ | AI — bounded series of consecutive synthetic experiments.
+
+Each completed experiment is followed immediately by the next until the
+wall-clock budget or 30-day research window expires. Scheduled GitHub-hosted
+runners restart the session periodically. This is NOT a continuously thinking
+AI system or a novel algorithm; no model APIs are invoked.
+
+Checkpoint file stores aggregate reproducible counts, not identities or
+actual-world claims. Run with --max-experiments 2 for a quick smoke test.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import defaultdict
+from datetime import date, datetime, timezone
+import json
+from pathlib import Path
+import time
+
+from daily_study import END, METHODS, START, run_study
+
+FAMILIES = ("mixed", "synergy", "scarcity", "balanced", "adversarial")
+BUDGETS = (12, 24, 48)
+CASES_PER_EXPERIMENT = 40
+
+
+def _save_atomic(path: Path, report: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    tmp.replace(path)
+
+
+def run_series(run_date: date, run_key: int, duration_seconds: float = 0,
+               max_experiments: int = 2, count: int = CASES_PER_EXPERIMENT,
+               output: Path | None = None) -> dict:
+    """Consecutive parameter-sweep research experiments; no idle waits.
+
+    A zero max_experiments means unlimited iterations bounded by time.
+    Time-driven execution must specify a positive duration.
+    """
+    if run_key < 0 or duration_seconds < 0 or max_experiments < 0 or count < 1:
+        raise ValueError("Invalid run configuration")
+    if max_experiments == 0 and duration_seconds == 0:
+        raise ValueError("Unbounded run: specify a positive duration")
+    report = {
+        "status": "experiment_series",
+        "run_date": str(run_date),
+        "run_key": run_key,
+        "window": {"start": str(START), "end": str(END)},
+        "synthetic_only": True,
+        "no_model_api": True,
+        "candidate_research_algorithm_implemented": False,
+        "research_breakthrough_claim": False,
+        "started_utc": datetime.now(timezone.utc).isoformat(),
+        "executed": False,
+        "completed_experiments": 0,
+        "total_synthetic_cases": 0,
+        "parameter_sweep": {},
+        "limitations": [
+            "Known baseline heuristics only; no AI researcher running on its own.",
+            "Synthetic preferences cannot establish real-world human benefits.",
+            "Equal utility-query counts do not establish equal total compute.",
+            "Repeated simulation runs do not establish algorithmic novelty.",
+            "Runs are periodically relaunched by GitHub; gaps are possible.",
+        ],
+    }
+    if not START <= run_date <= END:
+        report["status"] = "outside_30_day_window"
+        if output:
+            _save_atomic(output, report)
+        return report
+    report["executed"] = True
+    start = time.monotonic()
+    i = 0
+    while True:
+        if max_experiments and i >= max_experiments:
+            break
+        if i and duration_seconds and time.monotonic() - start >= duration_seconds:
+            break
+        # Each run key is unique to a GitHub Actions invocation. Each experiment
+        # chooses distinct deterministic inputs and cycles through research regimes.
+        family = FAMILIES[i % len(FAMILIES)]
+        budget = BUDGETS[(i // len(FAMILIES)) % len(BUDGETS)]
+        experiment_id = run_key * 100000 + i
+        outcome = run_study(
+            run_date, count=count, budget=budget,
+            experiment_id=experiment_id, regime=family,
+        )
+        if not outcome["executed"]:
+            raise AssertionError("Research window invariant")
+        key = f"{family}:budget_{budget}"
+        segment = report["parameter_sweep"].setdefault(key, {
+            "synthetic_cases": 0,
+            "solvable_cases": 0,
+            "unsolvable_cases": 0,
+            "experiments": 0,
+            "mutual_gain_found": {m: 0 for m in METHODS},
+        })
+        segment["synthetic_cases"] += outcome["synthetic_cases"]
+        segment["solvable_cases"] += outcome["cases_with_possible_mutual_gain"]
+        segment["unsolvable_cases"] += outcome["cases_with_no_mutual_gain_possible"]
+        segment["experiments"] += 1
+        for method in METHODS:
+            segment["mutual_gain_found"][method] += outcome["matched_budget_references"][method]["cases_where_found_mutual_gain"]
+        i += 1
+        report["completed_experiments"] = i
+        report["total_synthetic_cases"] += count
+        # Intermediate, atomic results preserve progress if a later iteration fails.
+        if output and (i <= 2 or i % 25 == 0):
+            report["finished_utc"] = datetime.now(timezone.utc).isoformat()
+            _save_atomic(output, report)
+    report["status"] = "completed_series"
+    report["finished_utc"] = datetime.now(timezone.utc).isoformat()
+    report["wall_clock_seconds"] = round(time.monotonic() - start, 3)
+    if output:
+        _save_atomic(output, report)
+    return report
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--run-date", default=str(datetime.now(timezone.utc).date()))
+    parser.add_argument("--run-key", type=int, default=1)
+    parser.add_argument("--duration-seconds", type=float, default=0)
+    parser.add_argument("--max-experiments", type=int, default=2)
+    parser.add_argument("--count", type=int, default=CASES_PER_EXPERIMENT)
+    parser.add_argument("--output", default="ao-research-series.json")
+    args = parser.parse_args()
+    report = run_series(
+        date.fromisoformat(args.run_date), run_key=args.run_key,
+        duration_seconds=args.duration_seconds,
+        max_experiments=args.max_experiments,
+        count=args.count, output=Path(args.output),
+    )
+    print(json.dumps({
+        "status": report["status"],
+        "completed_experiments": report["completed_experiments"],
+        "total_synthetic_cases": report["total_synthetic_cases"],
+        "research_breakthrough_claim": False,
+        "output": args.output,
+    }, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()
