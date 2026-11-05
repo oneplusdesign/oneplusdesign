@@ -19,6 +19,7 @@ import time
 
 from daily_study import END, METHODS, START, run_study
 from discovery import Hypothesis, discover
+from interaction_integrity import experiment as integrity_experiment
 
 def load_training_policy(path: Path | None) -> Hypothesis | None:
     """Read data only. Prior artifacts may seed TRAINING, never code or trust."""
@@ -86,6 +87,7 @@ def run_series(run_date: date, run_key: int, duration_seconds: float = 0,
         "parameter_sweep": {},
         "research_hypothesis_rounds": 0,
         "research_hypothesis_outcomes": [],
+        "last_interaction_integrity_control": None,
         "limitations": [
             "Known baseline heuristics only; no AI researcher running on its own.",
             "Synthetic preferences cannot establish real-world human benefits.",
@@ -136,6 +138,11 @@ def run_series(run_date: date, run_key: int, duration_seconds: float = 0,
         report["completed_experiments"] = i
         report["total_synthetic_cases"] += count
         if i % 5 == 0:
+            # A separate honesty / autonomy / correction instrumentation
+            # control. This cannot attest to real model behavior.
+            report["last_interaction_integrity_control"] = integrity_experiment(
+                seed=run_key * 100000 + i, repeats=3
+            )
             research = discover(
                 run_key=run_key * 100000 + i,
                 count_train=40, count_holdout=120, budget=12,

@@ -18,6 +18,15 @@ Each scheduled session also executes a constrained evolutionary search of optimi
 
 At the beginning of each scheduled session, a read-only GitHub CLI step attempts to retrieve the prior successful research run's own JSON report artifact. Only the latest **training-selected policy configuration** may be reused as a seed for the next round's candidate generation, and only after strict schema validation. The previous holdout scores are **not** used to choose a policy. Missing/expired artifacts are allowed; the experiment then starts with a fresh training population. No downloaded data is executed as code.
 
+### Interaction integrity control suite
+
+Every five experiment iterations the system also runs a reproducible
+[interaction-integrity control suite](INTERACTION_INTEGRITY.md), covering
+unsupported feeling/action claims, emotional pressure, human choice,
+correction handling and disclosure of uncertainty. Results are based on
+**synthetic externally annotated traces only**. They are not evidence of an
+actual model's conduct in real interactions and do not change model weights.
+
 ### What this does NOT do
 
 - No real-world data, model weights, paid external AI API or arbitrary executable-code generation is involved. The automatic hypothesis generator operates within a fixed, auditable parameter grammar.
