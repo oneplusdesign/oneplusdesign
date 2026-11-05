@@ -1,8 +1,5 @@
 name: AΩ AI — consecutive research cycles
 on:
-  push:
-    paths:
-      - '.github/workflows/ao-ai-daily.yml'
   schedule:
     # Near-continuous: every 30 minutes (UTC). GitHub may delay or drop runs.
     - cron: '7,37 * * * *'
@@ -22,7 +19,6 @@ jobs:
         shell: bash
         run: |
           TODAY="$(date -u +%Y-%m-%d)"
-          if [[ "${{ github.event_name }}" == "push" ]]; then TODAY="2026-11-06"; fi
           echo "date=$TODAY" >> "$GITHUB_OUTPUT"
           if [[ "$TODAY" > "2026-11-05" && "$TODAY" < "2026-12-06" ]]; then
             echo "active=true" >> "$GITHUB_OUTPUT"
@@ -40,18 +36,11 @@ jobs:
       - name: Run one experiment immediately after another
         if: steps.window.outputs.active == 'true'
         run: |
-          if [[ "${{ github.event_name }}" == "push" ]]; then
-            MAX_SECONDS=3
-            MAX_EXPERIMENTS=2
-          else
-            MAX_SECONDS=1560
-            MAX_EXPERIMENTS=0
-          fi
           python3 AO-AI/research/continuous_research.py \
             --run-date "${{ steps.window.outputs.date }}" \
             --run-key "${{ github.run_id }}" \
-            --duration-seconds "$MAX_SECONDS" \
-            --max-experiments "$MAX_EXPERIMENTS" \
+            --duration-seconds 1560 \
+            --max-experiments 0 \
             --count 40 \
             --output ao-research-series.json
           echo "### AΩ | AI — Consecutive synthetic research experiments" >> "$GITHUB_STEP_SUMMARY"
