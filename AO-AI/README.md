@@ -1,7 +1,7 @@
 # AΩ | AI — The Humanity Layer
 ### Intelligence should grow in care as it grows in power.
 
-**[Open the interactive demo](https://ao-ai-humanity.vercel.app/)** *(deployment URL must be verified; if unavailable, use the source locally)*
+**Interactive demo:** Open index.html locally or serve this directory; a public hosted URL has not been verified yet.
 
 An open-source, independent experiment exploring how AI agent actions can become more *legible, contestable, and accountable* before they affect people.
 
