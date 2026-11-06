@@ -15,7 +15,9 @@ No user login is needed.
 
 1. Load the last PROMOTED research champion as schema-validated JSON from
    the previous successful experiment; never execute prior artifacts.
-   If no candidate has passed all gates, begin without a champion.
+   When there is no validated champion, reuse the previous round's
+   *training-only* recipe seed to guide further search, even if that round
+   was rejected on holdout. Such a seed is NEVER treated as a champion.
 2. Train-select a new structural method using human-defined components.
 3. Evaluate it on disjoint synthetic holdout cases against an established
    baseline selected on training cases only.
