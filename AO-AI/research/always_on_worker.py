@@ -19,7 +19,7 @@ import sqlite3
 import sys
 import time
 
-from self_improve import load_champion, self_improve
+from self_improve import load_champion, load_training_seed, self_improve
 
 START = date(2026, 11, 6)
 END_EXCLUSIVE = date(2027, 5, 7)
@@ -136,7 +136,10 @@ def run_one_cycle(state_dir: Path, *, run_key: int | None = None) -> dict:
     if type(run_key) is not int or not 0 <= run_key < 2**63:
         raise ValueError("Run key must fit audit INTEGER primary key")
     champion = state_dir / "champion.json"
+    training_state = state_dir / "training_seed.json"
     _, old_gen = read_validated_champion(champion)
+    if training_state.is_file() and load_training_seed(training_state) is None:
+        raise ValueError("Invalid persistent training seed: fail closed")
     archive = state_dir / "runs"
     archive.mkdir(parents=True, exist_ok=True)
     target = archive / str(run_key)
@@ -146,8 +149,14 @@ def run_one_cycle(state_dir: Path, *, run_key: int | None = None) -> dict:
     # Intentionally do not persist a candidate as champion until all
     # independent tests have returned successfully.
     try:
-        result = self_improve(run_key, target, champion if champion.exists() else None)
+        result = self_improve(
+            run_key, target, champion if champion.exists() else None,
+            previous_training_seed=training_state if training_state.exists() else None,
+        )
         stored = target / "champion.json"
+        training_new = target / "training_seed.json"
+        if training_new.exists() and load_training_seed(training_new) is None:
+            raise ValueError("Invalid training candidate checkpoint")
         chosen, new_gen = read_validated_champion(stored)
         if (result["proposal_accepted_as_research_recipe"] is True and
                 new_gen != old_gen + 1) or (
@@ -156,6 +165,12 @@ def run_one_cycle(state_dir: Path, *, run_key: int | None = None) -> dict:
             raise AssertionError("Unexpected research generation transition")
         if result.get("real_world_actions") != 0 or result.get("code_merges_or_deployments") != 0:
             raise AssertionError("Outside research-only authority")
+        # The seed is NEVER promoted as a champion. Persist separately so
+        # rejected experiments still inform the next training-only search.
+        if training_new.exists():
+            write_json_atomic(
+                training_state, json.loads(training_new.read_text(encoding="utf-8"))
+            )
         write_json_atomic(champion, json.loads(stored.read_text(encoding="utf-8")))
         append_audit(state_dir, started, run_key, "verified",
                      result["proposal_accepted_as_research_recipe"],
