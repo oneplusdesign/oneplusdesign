@@ -1,0 +1,44 @@
+name: AΩ AI — first compositional method-evolution trial
+on:
+  push:
+    paths:
+      - '.github/workflows/ao-ai-method-evolution-trial.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  trial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Run the reproducible method-evolution tests
+        run: python3 -m unittest discover -s AO-AI/research -p 'test_method_evolution.py' -v
+      - name: Evolve compositional method; train-select, then held-out evaluation
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          from pathlib import Path
+          sys.path.insert(0, "AO-AI/research")
+          from method_evolution import evolve_method
+          result = evolve_method(
+              run_key=20261106,
+              train_count=80, holdout_count=200,
+              budget=12, population=10, generations=4,
+          )
+          Path("ao-ai-method-evolution-trial.json").write_text(
+              json.dumps(result, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(result, indent=2, sort_keys=True))
+          PY
+      - name: Archive research-only report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ao-ai-method-evolution-trial
+          path: ao-ai-method-evolution-trial.json
+          retention-days: 35
+          if-no-files-found: error
