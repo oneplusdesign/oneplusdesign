@@ -46,8 +46,8 @@ class Recipe:
     def from_data(cls, data: dict) -> "Recipe":
         if (type(data) is not dict or set(data) !=
                 {"features", "weights", "proposal", "explorer", "anchor"} or
-                type(data["features"]) is not list or
-                type(data["weights"]) is not list):
+                type(data["features"]) not in (list, tuple) or
+                type(data["weights"]) not in (list, tuple)):
             raise ValueError("Invalid JSON recipe schema")
         return cls(tuple(data["features"]), tuple(data["weights"]),
                    data["proposal"], data["explorer"], data["anchor"])
