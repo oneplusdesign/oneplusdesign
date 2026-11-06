@@ -1,0 +1,30 @@
+# Research-only. Does not publish ports, mount Docker socket or use network.
+services:
+  ao-ai-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ao-ai-research-worker
+    restart: unless-stopped
+    init: true
+    read_only: true
+    user: "65532:65532"
+    network_mode: none
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 768m
+    cpus: 1.5
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=128m
+    environment:
+      AO_STATE_DIR: /state
+      AO_CYCLE_PAUSE_SECONDS: "3"
+      AO_STOP_DATE: "2027-05-07"
+    volumes:
+      - ao-ai-state:/state
+    stop_grace_period: 30s
+volumes:
+  ao-ai-state:
