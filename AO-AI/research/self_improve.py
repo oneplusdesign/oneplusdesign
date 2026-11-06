@@ -49,6 +49,7 @@ def self_improve(
     if type(run_key) is not int or run_key < 0:
         raise ValueError("Invalid experiment seed")
     incumbent, generation = load_champion(previous)
+    output.mkdir(parents=True, exist_ok=True)
     proposal = make_proposal(
         run_key, output, inherited=incumbent, train_count=train_count,
         holdout_count=holdout_count, population=population,
