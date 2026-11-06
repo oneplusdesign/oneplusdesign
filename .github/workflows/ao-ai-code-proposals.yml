@@ -1,7 +1,7 @@
 name: AΩ AI — autonomous code-proposal research
 on:
   schedule:
-    # Research-only cycle every four hours until 2027-05-06 UTC; best-effort.
+    # Ten-minute best-effort GitHub schedule; watchdog attempts recovery.
     - cron: '3,13,23,33,43,53 * * * *'
   workflow_dispatch:
   push:
@@ -61,6 +61,7 @@ jobs:
             --run-key "$GITHUB_RUN_ID" \
             --output-dir candidate \
             --previous-champion previous/champion.json \
+            --previous-training-seed previous/training_seed.json \
             --train-count 60 \
             --holdout-count 200 \
             --population 10 \
@@ -77,6 +78,7 @@ jobs:
           print(f"Previous validated research champion: {c['previous_validated_champion_used']}")
           print(f"Independent cases: {c['independent_synthetic_cases']}, seeds: {c['independent_seed_blocks']}")
           print(f"Research-only promotion decision: {c['gate_decision']}")
+          print(f"Previous TRAINING-only seed used: {c['previous_training_only_seed_used']}")
           print("No source merge, deployment or real-world activity.")
           PY
       - name: Archive reproducible proposed source and evidence
@@ -89,6 +91,7 @@ jobs:
             candidate/proposal.json
             candidate/verification.json
             candidate/champion.json
+            candidate/training_seed.json
             candidate/cycle.json
           retention-days: 35
           if-no-files-found: error
