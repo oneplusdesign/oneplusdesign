@@ -55,7 +55,7 @@ def decide(now: datetime, payload: dict, *, stale_after_minutes: int = 65) -> di
     if active:
         return {"action": "NO_ACTION", "reason": "research_already_queued_or_running",
                 "active_count": len(active), "stale_after_minutes": stale_after_minutes}
-    started = [_parse_utc(r["created_at"]) for r in runs]
+    started = [_parse_utc(r.get("created_at")) for r in runs]
     latest = max(started, default=WINDOW_START)
     if latest > now:
         raise ValueError("Future run timestamp: refusing to start duplicate")
