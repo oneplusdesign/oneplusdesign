@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 import unittest
 
 from method_evolution import Recipe
-from self_improve import load_champion, self_improve
+from self_improve import load_champion, load_training_seed, self_improve
 from verification_gate import (
     REGIMES, SEEDS, CASES_PER_SEED, gate_metrics
 )
@@ -127,6 +127,53 @@ class ProtectionTests(unittest.TestCase):
             self.assertEqual(generation, 5)
             self.assertEqual(result["code_merges_or_deployments"], 0)
             self.assertEqual(result["real_world_actions"], 0)
+
+    def test_rejected_training_recipe_is_carried_forward_but_not_promoted(self):
+        first = Recipe(("minimum",), (1,), "local", "steady", "best")
+        second = Recipe(("total",), (1,), "diverse", "decay", "best")
+        with TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            with patch("self_improve.make_proposal", return_value={
+                "training_selected_recipe": asdict(first),
+            }), patch("self_improve.assess", return_value={
+                "passed": False, "cases": 1000, "seeds": 5,
+                "decision": "REJECT",
+            }):
+                result = self_improve(20, root / "a")
+            self.assertFalse(result["proposal_accepted_as_research_recipe"])
+            self.assertEqual(load_champion(root / "a" / "champion.json"),
+                             (None, 0))
+            self.assertEqual(load_training_seed(root / "a" / "training_seed.json"), first)
+            with patch("self_improve.make_proposal", return_value={
+                "training_selected_recipe": asdict(second),
+            }) as proposed, patch("self_improve.assess", return_value={
+                "passed": False, "cases": 1000, "seeds": 5,
+                "decision": "REJECT",
+            }):
+                result2 = self_improve(
+                    21, root / "b", previous=root / "a" / "champion.json",
+                    previous_training_seed=root / "a" / "training_seed.json")
+            self.assertFalse(result2["proposal_accepted_as_research_recipe"])
+            self.assertTrue(result2["previous_training_only_seed_used"])
+            self.assertEqual(proposed.call_args.kwargs["inherited"], first)
+            self.assertEqual(load_champion(root / "b" / "champion.json"), (None, 0))
+
+    def test_malicious_training_seed_is_discarded(self):
+        with TemporaryDirectory() as dirname:
+            f = Path(dirname) / "training_seed.json"
+            f.write_text(json.dumps({
+                "schema": 1, "research_only": True, "training_seed_only": True,
+                "automatic_source_merge_allowed": False,
+                "real_world_application_allowed": False,
+                "recipe": {"features": ["__import__('os')"], "weights": [1],
+                           "proposal": "local", "explorer": "steady", "anchor": "best"}
+            }))
+            self.assertIsNone(load_training_seed(f))
+            data = json.loads(f.read_text())
+            data["recipe"]["features"] = ["minimum"]
+            data["automatic_source_merge_allowed"] = True
+            f.write_text(json.dumps(data))
+            self.assertIsNone(load_training_seed(f))
 
     def test_protected_end_to_end_cycle(self):
         with TemporaryDirectory() as dirname:
