@@ -12,6 +12,7 @@ from datetime import date, datetime, timezone
 import fcntl
 import json
 import os
+import signal
 from pathlib import Path
 import shutil
 import sqlite3
@@ -25,6 +26,8 @@ END_EXCLUSIVE = date(2027, 5, 7)
 DEFAULT_SLEEP_SECONDS = 3
 ARCHIVE_LIMIT = 16
 MAX_FAILURES = 4
+MAX_AUDIT_RECORDS = 20_000
+MAX_CYCLE_SECONDS = 300
 
 
 def utc_now() -> datetime:
@@ -73,6 +76,15 @@ def initialize(state_dir: Path) -> None:
                 summary_json TEXT NOT NULL
             )
         """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS daily_totals(
+                day_utc TEXT PRIMARY KEY,
+                cycles INTEGER NOT NULL,
+                verified INTEGER NOT NULL,
+                errors INTEGER NOT NULL,
+                promoted INTEGER NOT NULL
+            )
+        """)
         conn.commit()
 
 
@@ -86,6 +98,21 @@ def append_audit(state_dir: Path, started_at: datetime, key: int,
              outcome, int(promoted), generation,
              json.dumps(summary, sort_keys=True)[:8000]),
         )
+        conn.execute(
+            """INSERT INTO daily_totals VALUES (?, 1, ?, ?, ?)
+               ON CONFLICT(day_utc) DO UPDATE SET
+                 cycles=cycles+1, verified=verified+excluded.verified,
+                 errors=errors+excluded.errors, promoted=promoted+excluded.promoted""",
+            (started_at.date().isoformat(), int(outcome == "verified"),
+             int(outcome == "error"), int(promoted)),
+        )
+        # Retain all daily aggregates but cap per-cycle audit disk usage.
+        if key % 128 == 0:
+            conn.execute(
+                "DELETE FROM cycles WHERE run_key NOT IN "
+                "(SELECT run_key FROM cycles ORDER BY run_key DESC LIMIT ?)",
+                (MAX_AUDIT_RECORDS,),
+            )
         conn.commit()
 
 
@@ -191,11 +218,22 @@ def serve(state_dir: Path, *, limit: int = 0, pause_seconds: float = DEFAULT_SLE
                 heartbeat(state_dir, "completed", completed, detail="study window ended")
                 if limit:
                     break
-                time.sleep(3600)
+                time.sleep(60)
                 continue
             heartbeat(state_dir, "running", completed, consecutive_failures)
             try:
-                result = run_one_cycle(state_dir)
+                # A hung synthetic experiment cannot permanently monopolize
+                # this worker: fail, audit and let the supervisor restart it.
+                def abort_cycle(signum, frame):
+                    raise TimeoutError("AΩ bounded research cycle exceeded 300 seconds")
+
+                old_handler = signal.signal(signal.SIGALRM, abort_cycle)
+                signal.alarm(MAX_CYCLE_SECONDS)
+                try:
+                    result = run_one_cycle(state_dir)
+                finally:
+                    signal.alarm(0)
+                    signal.signal(signal.SIGALRM, old_handler)
                 completed += 1
                 consecutive_failures = 0
                 print(json.dumps({
