@@ -1,6 +1,8 @@
 """Tests for the 'good of all represented groups' research-only gate."""
 import json
 from pathlib import Path
+from dataclasses import asdict
+from unittest.mock import patch
 from tempfile import TemporaryDirectory
 import unittest
 
@@ -69,6 +71,62 @@ class ProtectionTests(unittest.TestCase):
                            "anchor": "best"},
             }))
             self.assertEqual(load_champion(p), (None, 0))
+
+    def test_failed_candidate_cannot_erase_a_prior_champion(self):
+        previous = Recipe(("minimum",), (1,), "local", "steady", "best")
+        challenger = Recipe(("total",), (1,), "diverse", "decay", "best")
+        with TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            saved = root / "prior.json"
+            saved.write_text(json.dumps({
+                "status": "TRAINING_DATA_CHAMPION",
+                "research_only": True,
+                "automatic_source_merge_allowed": False,
+                "real_world_application_allowed": False,
+                "generation": 4,
+                "recipe": asdict(previous),
+            }))
+            out = root / "output"
+            with patch("self_improve.make_proposal", return_value={
+                "training_selected_recipe": asdict(challenger),
+            }), patch("self_improve.assess", return_value={
+                "passed": False, "cases": 1000, "seeds": 5,
+                "decision": "REJECT",
+            }):
+                result = self_improve(14, out, previous=saved)
+            self.assertFalse(result["proposal_accepted_as_research_recipe"])
+            restored, generation = load_champion(out / "champion.json")
+            self.assertEqual(restored, previous)
+            self.assertEqual(generation, 4)
+
+    def test_accepted_candidate_can_change_only_research_data(self):
+        previous = Recipe(("minimum",), (1,), "local", "steady", "best")
+        challenger = Recipe(("total",), (1,), "diverse", "decay", "best")
+        with TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            saved = root / "prior.json"
+            saved.write_text(json.dumps({
+                "status": "TRAINING_DATA_CHAMPION",
+                "research_only": True,
+                "automatic_source_merge_allowed": False,
+                "real_world_application_allowed": False,
+                "generation": 4,
+                "recipe": asdict(previous),
+            }))
+            out = root / "output"
+            with patch("self_improve.make_proposal", return_value={
+                "training_selected_recipe": asdict(challenger),
+            }), patch("self_improve.assess", return_value={
+                "passed": True, "cases": 1000, "seeds": 5,
+                "decision": "PROMOTE_RECIPE_DATA",
+            }):
+                result = self_improve(14, out, previous=saved)
+            self.assertTrue(result["proposal_accepted_as_research_recipe"])
+            promoted, generation = load_champion(out / "champion.json")
+            self.assertEqual(promoted, challenger)
+            self.assertEqual(generation, 5)
+            self.assertEqual(result["code_merges_or_deployments"], 0)
+            self.assertEqual(result["real_world_actions"], 0)
 
     def test_protected_end_to_end_cycle(self):
         with TemporaryDirectory() as dirname:
