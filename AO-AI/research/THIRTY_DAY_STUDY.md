@@ -27,6 +27,15 @@ correction handling and disclosure of uncertainty. Results are based on
 **synthetic externally annotated traces only**. They are not evidence of an
 actual model's conduct in real interactions and do not change model weights.
 
+### Watchdog for missed schedules
+
+A separate [self-recovery watchdog](WATCHDOG.md) probes GitHub's actual
+research run history at :18 and :48 UTC. If there has been no new research
+run for 65 minutes and none is queued/running, it dispatches the fixed
+research workflow automatically. It stops after the 30-day trial,
+avoids duplicate runs, and does not require the user to be logged in.
+The watchdog itself is also subject to GitHub schedule delays/drops.
+
 ### What this does NOT do
 
 - No real-world data, model weights, paid external AI API or arbitrary executable-code generation is involved. The automatic hypothesis generator operates within a fixed, auditable parameter grammar.
@@ -46,8 +55,8 @@ Study validation criteria and original research scope remain in [RESEARCH.md](..
 
 ## Resource controls and exit conditions
 
-- Jobs use only standard GitHub-hosted runners in a public repository, with **read-only repository permissions**. GitHub currently provides free standard hosted compute for public repositories; account-specific settings and storage billing should still be monitored.
-- Maximum 29 minute job timeout, no paid cloud services, no autonomous writes or external actions outside read-only GitHub artifact retrieval. The workflow token is restricted to read-only contents and actions access.
+- Jobs use only standard GitHub-hosted runners in a public repository, with **read-only repository permissions for the research loop**; the separate watchdog uses narrowly scoped `actions: write` only to dispatch the existing workflow. GitHub currently provides free standard hosted compute for public repositories; account-specific settings and storage billing should still be monitored.
+- Maximum 29 minute job timeout, no paid cloud services, no autonomous writes or external actions outside read-only GitHub artifact retrieval. The research workflow token is restricted to read-only contents and actions access; the watchdog's short-lived token can dispatch an existing workflow.
 - Repo artifacts store aggregated synthetic measurements; no personal narratives.
 - After 2026-12-05, jobs immediately skip experiments. Removing the cron afterward requires a separate workflow edit or the scheduled research review.
 - New scientifically meaningful methods, independent replication and peer review remain necessary before any major scientific claim.

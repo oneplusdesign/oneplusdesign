@@ -1,0 +1,62 @@
+name: AΩ AI — missed-run recovery watchdog
+on:
+  schedule:
+    # A separate schedule, offset from the main :07/:37 research schedule.
+    # GitHub's scheduler itself is best effort: this is not an uptime SLA.
+    - cron: '18,48 * * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/ao-ai-watchdog.yml'
+      - 'AO-AI/research/watchdog.py'
+      - 'AO-AI/research/test_watchdog.py'
+permissions:
+  contents: read
+  # GitHub workflow_dispatch requires actions:write.
+  # This privilege is granted ONLY to this narrow watchdog job.
+  actions: write
+concurrency:
+  group: ao-ai-watchdog
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Verify decision logic
+        run: python3 -m unittest discover -s AO-AI/research -p 'test_watchdog.py' -v
+      - name: Fetch authoritative GitHub research run history
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api -X GET "repos/$GITHUB_REPOSITORY/actions/workflows/ao-ai-daily.yml/runs?per_page=50" > research-runs.json
+      - name: Decide and recover when absent
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Push and manual checks are dry runs. Only the cron can dispatch.
+          RECOVERY_ALLOWED: ${{ github.event_name == 'schedule' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 AO-AI/research/watchdog.py \
+            --runs-file research-runs.json \
+            --output watchdog-decision.json \
+            --threshold-minutes 65
+          DECISION="$(python3 -c 'import json;print(json.load(open("watchdog-decision.json"))["action"])')"
+          echo '### AΩ | AI research watchdog' >> "$GITHUB_STEP_SUMMARY"
+          cat watchdog-decision.json >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$DECISION" == "RECOVER" && "$RECOVERY_ALLOWED" == "true" ]]; then
+            # Fixed local workflow only; no arbitrary ref, token, URL or code.
+            gh workflow run ao-ai-daily.yml --ref main --repo "$GITHUB_REPOSITORY"
+            echo "Recovery dispatched by watchdog" | tee -a "$GITHUB_STEP_SUMMARY"
+          elif [[ "$DECISION" == "RECOVER" ]]; then
+            echo "DRY RUN: recovery would be dispatched on scheduled watchdog runs only" \
+              | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No restart required" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
