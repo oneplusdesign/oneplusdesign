@@ -58,6 +58,24 @@ class WatchdogTests(unittest.TestCase):
             self.assertEqual(decide(when, payload(run(200)))["reason"],
                              "outside_30_day_trial")
 
+    def test_evolution_watchdog_recovers_after_skipped_four_hour_cycle(self):
+        self.assertEqual(decide(NOW, payload(run(310)),
+                                stale_after_minutes=300, evolution=True)["action"],
+                         "RECOVER")
+        self.assertEqual(decide(NOW, payload(run(250)),
+                                stale_after_minutes=300, evolution=True)["action"],
+                         "NO_ACTION")
+        self.assertEqual(decide(NOW, payload(run(500, "in_progress")),
+                                stale_after_minutes=300, evolution=True)["action"],
+                         "NO_ACTION")
+
+    def test_evolution_watchdog_stops_after_six_months(self):
+        when = datetime(2027, 5, 7, 0, 1, tzinfo=UTC)
+        self.assertEqual(decide(when, payload(),
+                                stale_after_minutes=300,
+                                evolution=True)["reason"],
+                         "outside_6_month_trial")
+
     def test_ignores_old_success_if_a_newer_run_exists(self):
         self.assertEqual(decide(NOW, payload(run(20), run(800)))["action"], "NO_ACTION")
 
