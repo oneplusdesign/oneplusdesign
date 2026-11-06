@@ -41,23 +41,62 @@ def load_champion(path: Path | None) -> tuple[Recipe | None, int]:
         return None, 0
 
 
+def load_training_seed(path: Path | None) -> Recipe | None:
+    """Recover a previous TRAINING-only search starting point, not a champion.
+
+    The previous holdout score is NEVER used to decide whether to preserve
+    this bounded seed. Failed proposals remain ineligible for promotion.
+    """
+    if path is None or not path.is_file() or path.stat().st_size > 300_000:
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if (type(data) is not dict or data.get("schema") != 1 or
+                data.get("research_only") is not True or
+                data.get("training_seed_only") is not True or
+                data.get("automatic_source_merge_allowed") is not False or
+                data.get("real_world_application_allowed") is not False):
+            return None
+        return Recipe.from_data(data["recipe"])
+    except (ValueError, OSError, TypeError, KeyError, AttributeError):
+        return None
+
+
 def self_improve(
     run_key: int, output: Path, previous: Path | None = None,
-    *, train_count: int = 60, holdout_count: int = 200,
+    *, previous_training_seed: Path | None = None, train_count: int = 60, holdout_count: int = 200,
     population: int = 10, generations: int = 4,
 ) -> dict:
     if type(run_key) is not int or run_key < 0:
         raise ValueError("Invalid experiment seed")
     incumbent, generation = load_champion(previous)
+    seed = load_training_seed(previous_training_seed)
+    inherited = incumbent if incumbent is not None else seed
     output.mkdir(parents=True, exist_ok=True)
     proposal = make_proposal(
-        run_key, output, inherited=incumbent, train_count=train_count,
+        run_key, output, inherited=inherited, train_count=train_count,
         holdout_count=holdout_count, population=population,
         generations=generations,
     )
     verification = assess(output, incumbent=incumbent)
     candidate = Recipe.from_data(proposal["training_selected_recipe"])
     accepted = verification["passed"]
+    # This is a research starting point, not an approved/champion method.
+    # Save it for ALL completed cycles, irrespective of the holdout result.
+    # It can affect future training candidate generation, never deployment.
+    training_seed = {
+        "schema": 1,
+        "research_only": True,
+        "training_seed_only": True,
+        "recipe": asdict(candidate),
+        "automatic_source_merge_allowed": False,
+        "real_world_application_allowed": False,
+        "status": "TRAINING_SEED_NOT_PROMOTED",
+    }
+    (output / "training_seed.json").write_text(
+        json.dumps(training_seed, sort_keys=True, indent=2) + "\n",
+        encoding="utf-8",
+    )
     if accepted:
         incumbent = candidate
         generation += 1
@@ -83,6 +122,8 @@ def self_improve(
         "proposal_generated": True,
         "generated_source_is_executable": True,
         "previous_validated_champion_used": generation > int(accepted),
+        "previous_training_only_seed_used": incumbent is None and seed is not None,
+        "carryover_seed_is_not_promoted": True,
         "proposal_accepted_as_research_recipe": accepted,
         "champion_generation": generation,
         "independent_synthetic_cases": verification["cases"],
@@ -103,6 +144,7 @@ def main() -> None:
     parser.add_argument("--run-key", type=int, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--previous-champion", type=Path)
+    parser.add_argument("--previous-training-seed", type=Path)
     parser.add_argument("--train-count", type=int, default=60)
     parser.add_argument("--holdout-count", type=int, default=200)
     parser.add_argument("--population", type=int, default=10)
@@ -110,6 +152,7 @@ def main() -> None:
     args = parser.parse_args()
     result = self_improve(
         args.run_key, args.output_dir, args.previous_champion,
+        previous_training_seed=args.previous_training_seed,
         train_count=args.train_count, holdout_count=args.holdout_count,
         population=args.population, generations=args.generations,
     )
