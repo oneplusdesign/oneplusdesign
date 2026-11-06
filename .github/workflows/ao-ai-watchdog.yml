@@ -77,7 +77,7 @@ jobs:
           python3 AO-AI/research/watchdog.py \
             --runs-file proposal-runs.json \
             --output proposal-watchdog-decision.json \
-            --threshold-minutes 300 \
+            --threshold-minutes 40 \
             --mode evolution
           DECISION="$(python3 -c 'import json;print(json.load(open("proposal-watchdog-decision.json"))["action"])')"
           echo '### AΩ | Six-month method evolution watchdog' >> "$GITHUB_STEP_SUMMARY"
