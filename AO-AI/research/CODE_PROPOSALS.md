@@ -8,7 +8,7 @@ deterministic program synthesis, NOT an unrestricted AI agent that
 invented wholly new algorithms or improves itself generally.
 
 The separate GitHub workflow ao-ai-code-proposals.yml runs every four
-hours on a best-effort schedule during 2026-11-06 to 2027-05-06 UTC.
+10 minutes on a best-effort schedule during 2026-11-06 to 2027-05-06 UTC. Each run is short and bounded, not a permanently running daemon. GitHub may skip or delay schedule events.
 No user login is needed.
 
 ### Each proposal cycle
