@@ -1,0 +1,14 @@
+# No Git metadata, tokens, local artifacts or credentials in the image.
+.git
+.env
+.env.*
+**/__pycache__
+**/*.pyc
+**/*.sqlite*
+**/candidate
+**/previous
+**/output
+**/*.json
+**/*.log
+**/.venv
+**/venv
