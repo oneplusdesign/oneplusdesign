@@ -60,3 +60,33 @@ jobs:
           else
             echo "No restart required" | tee -a "$GITHUB_STEP_SUMMARY"
           fi
+      - name: Fetch six-month code-proposal run history
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api -X GET "repos/$GITHUB_REPOSITORY/actions/workflows/ao-ai-code-proposals.yml/runs?per_page=50" > proposal-runs.json
+      - name: Restart code-proposal research only if its schedule was missed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RECOVERY_ALLOWED: ${{ github.event_name == 'schedule' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 AO-AI/research/watchdog.py \
+            --runs-file proposal-runs.json \
+            --output proposal-watchdog-decision.json \
+            --threshold-minutes 300 \
+            --mode evolution
+          DECISION="$(python3 -c 'import json;print(json.load(open("proposal-watchdog-decision.json"))["action"])')"
+          echo '### AΩ | Six-month method evolution watchdog' >> "$GITHUB_STEP_SUMMARY"
+          cat proposal-watchdog-decision.json >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$DECISION" == "RECOVER" && "$RECOVERY_ALLOWED" == "true" ]]; then
+            gh workflow run ao-ai-code-proposals.yml --ref main --repo "$GITHUB_REPOSITORY"
+            echo "Missed code-proposal run restarted" | tee -a "$GITHUB_STEP_SUMMARY"
+          elif [[ "$DECISION" == "RECOVER" ]]; then
+            echo "DRY RUN ONLY: scheduled watchdog would start a missing cycle" | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Code-proposal recovery not needed" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
