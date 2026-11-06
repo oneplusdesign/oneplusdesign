@@ -1,7 +1,8 @@
 name: AΩ AI — autonomous code-proposal research
 on:
   schedule:
-    # Ten-minute best-effort GitHub schedule; watchdog attempts recovery.
+    # Ten-minute best-effort schedule; watchdog recovers missed runs.
+    # Training-only seed carries hypotheses, while promotion remains independently gated.
     - cron: '3,13,23,33,43,53 * * * *'
   workflow_dispatch:
   push:
