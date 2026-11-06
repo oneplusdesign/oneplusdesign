@@ -50,7 +50,7 @@ The watchdog itself is also subject to GitHub schedule delays/drops.
 
 The original high-frequency baseline study is intentionally limited
 to 30 days. A **separate scheduled, read-only [code evolution loop](CODE_PROPOSALS.md)**
-runs every four hours through **2027-05-06 UTC**, and has an explicit
+runs every ten minutes through **2027-05-06 UTC**, and has an explicit
 [Good-of-All Safety Contract](SAFETY_AND_GOVERNANCE.md).
 
 It automatically generates executable candidate code from a fixed
