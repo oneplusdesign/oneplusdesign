@@ -233,6 +233,7 @@ def main() -> None:
     print(json.dumps({
         "status": report["status"],
         "methods_evaluated": report["methods_evaluated"],
+        "inherited_recipe_used": report["inherited_recipe_used"],
         "generated_source_sha256": report["generated_source_sha256"],
         "holdout_delta": report["holdout_delta"],
         "verified_code_tests": report["conformance"]["independent_trials"],

@@ -68,6 +68,15 @@ jobs:
           echo '## AΩ — executable code proposal' >> "$GITHUB_STEP_SUMMARY"
           echo 'Generated Python for review ONLY — not committed, merged or deployed.' >> "$GITHUB_STEP_SUMMARY"
           echo 'Synthetic findings are exploratory; no breakthrough claimed.' >> "$GITHUB_STEP_SUMMARY"
+          # Expose repeatability and cross-run inheritance in the run summary.
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          r = json.loads(Path("candidate/proposal.json").read_text())
+          print(f"Previous validated training recipe inherited: {r['inherited_recipe_used']}")
+          print(f"Methods tested: {r['methods_evaluated']}; holdout delta: {r['holdout_delta']}")
+          print("Candidate code is not deployed or merged.")
+          PY
       - name: Archive reproducible proposed source and evidence
         if: steps.window.outputs.active == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
