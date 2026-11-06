@@ -19,7 +19,9 @@ The scheduled code-proposal workflow runs every ten minutes, best-effort,
 between 2026-11-06 and 2027-05-06 inclusive, UTC.
 
 1. Load the prior promoted synthetic research champion as schema-validated
-   JSON data. Never execute historical candidate code.
+   JSON data. If none exists, carry the latest training-selected recipe as
+   a non-promoted, training-only seed; its use never bypasses the holdout
+   gate. Never execute historical candidate code.
 2. Generate and mutate bounded compositions of permitted research methods;
    choose a candidate on synthetic training cases.
 3. Compile a new Python implementation from a finite whitelist of
