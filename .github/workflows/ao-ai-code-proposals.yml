@@ -2,7 +2,7 @@ name: AΩ AI — autonomous code-proposal research
 on:
   schedule:
     # Research-only cycle every four hours until 2027-05-06 UTC; best-effort.
-    - cron: '23 1,5,9,13,17,21 * * *'
+    - cron: '3,13,23,33,43,53 * * * *'
   workflow_dispatch:
   push:
     paths:
