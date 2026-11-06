@@ -73,9 +73,17 @@ class AlwaysOnWorkerTests(unittest.TestCase):
         with TemporaryDirectory() as d:
             state = Path(d)
             initialize(state)
-            def verified(run_key, output, previous):
+            def verified(run_key, output, previous, **kwargs):
                 output.mkdir(parents=True)
                 write_json_atomic(output / "champion.json", no_champion())
+                write_json_atomic(output / "training_seed.json", {
+                    "schema": 1, "research_only": True, "training_seed_only": True,
+                    "recipe": {"features": ["minimum"], "weights": [1],
+                               "proposal": "local", "explorer": "steady",
+                               "anchor": "best"},
+                    "automatic_source_merge_allowed": False,
+                    "real_world_application_allowed": False,
+                })
                 return {
                     "run_key": run_key,
                     "proposal_accepted_as_research_recipe": False,
@@ -89,12 +97,30 @@ class AlwaysOnWorkerTests(unittest.TestCase):
             self.assertEqual(read_validated_champion(state / "champion.json"),
                              (None, 0))
             self.assertTrue((state / "audit.sqlite3").is_file())
+            self.assertTrue((state / "training_seed.json").is_file())
+            self.assertFalse(read_validated_champion(state / "champion.json")[0])
+
+    def test_worker_rejects_corrupt_persistent_training_state(self):
+        with TemporaryDirectory() as d:
+            state = Path(d)
+            initialize(state)
+            write_json_atomic(state / "training_seed.json", {
+                "schema": 1, "research_only": True,
+                "training_seed_only": True,
+                "recipe": {"features": ["os.system"], "weights": [1],
+                           "proposal": "local", "explorer": "steady",
+                           "anchor": "best"},
+                "automatic_source_merge_allowed": False,
+                "real_world_application_allowed": False,
+            })
+            with self.assertRaises(ValueError):
+                run_one_cycle(state, run_key=999)
 
     def test_cycle_rejects_false_promotion_claim(self):
         with TemporaryDirectory() as d:
             state = Path(d)
             initialize(state)
-            def false_promotion(run_key, output, previous):
+            def false_promotion(run_key, output, previous, **kwargs):
                 output.mkdir(parents=True)
                 write_json_atomic(output / "champion.json", no_champion())
                 return {
