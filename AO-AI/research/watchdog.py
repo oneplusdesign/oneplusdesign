@@ -13,6 +13,7 @@ from pathlib import Path
 
 WINDOW_START = datetime(2026, 11, 6, tzinfo=timezone.utc)
 WINDOW_END_EXCLUSIVE = datetime(2026, 12, 6, tzinfo=timezone.utc)
+EVOLUTION_END_EXCLUSIVE = datetime(2027, 5, 7, tzinfo=timezone.utc)
 ACTIVE = frozenset(("queued", "in_progress", "waiting", "pending", "requested"))
 MAX_HISTORY = 50
 
@@ -26,7 +27,8 @@ def _parse_utc(value: str) -> datetime:
     return result.astimezone(timezone.utc)
 
 
-def decide(now: datetime, payload: dict, *, stale_after_minutes: int = 65) -> dict:
+def decide(now: datetime, payload: dict, *, stale_after_minutes: int = 65,
+           evolution: bool = False) -> dict:
     """Choose NO_ACTION / RECOVER without relying on fabricated heartbeats.
 
     The latest created run is deliberately the throttle even if it failed.
@@ -37,15 +39,17 @@ def decide(now: datetime, payload: dict, *, stale_after_minutes: int = 65) -> di
     if now.tzinfo is None:
         raise ValueError("Expected timezone-aware UTC time")
     now = now.astimezone(timezone.utc)
-    if not 30 <= stale_after_minutes <= 180:
+    if not 30 <= stale_after_minutes <= 480:
         raise ValueError("Stale threshold outside bounded range")
     if not isinstance(payload, dict) or not isinstance(payload.get("workflow_runs"), list):
         raise ValueError("Expected GitHub Actions workflow_runs response")
     runs = payload["workflow_runs"]
     if len(runs) > MAX_HISTORY:
         raise ValueError("Unexpected oversized API response")
-    if not WINDOW_START <= now < WINDOW_END_EXCLUSIVE:
-        return {"action": "NO_ACTION", "reason": "outside_30_day_trial",
+    end = EVOLUTION_END_EXCLUSIVE if evolution else WINDOW_END_EXCLUSIVE
+    if not WINDOW_START <= now < end:
+        return {"action": "NO_ACTION", "reason": (
+            "outside_6_month_trial" if evolution else "outside_30_day_trial"),
                 "stale_after_minutes": stale_after_minutes}
     if any(not isinstance(r, dict) for r in runs):
         raise ValueError("Malformed GitHub run entry")
@@ -74,10 +78,13 @@ def main() -> None:
     parser.add_argument("--runs-file", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--threshold-minutes", type=int, default=65)
+    parser.add_argument("--mode", choices=("baseline", "evolution"),
+                        default="baseline")
     args = parser.parse_args()
     payload = json.loads(args.runs_file.read_text(encoding="utf-8"))
     result = decide(datetime.now(timezone.utc), payload,
-                    stale_after_minutes=args.threshold_minutes)
+                    stale_after_minutes=args.threshold_minutes,
+                    evolution=args.mode == "evolution")
     args.output.write_text(json.dumps(result, sort_keys=True, indent=2) + "\n",
                            encoding="utf-8")
     print(json.dumps(result, sort_keys=True))
