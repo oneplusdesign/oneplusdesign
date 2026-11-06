@@ -34,6 +34,13 @@ evolution. Holdout scores are **not** used to select the inherited
 recipe. Continuous re-testing on multiple holdouts is exploratory and
 does not yield independent scientific confirmation.
 
+## Executable code proposal workflow
+
+The [code-proposal pipeline](CODE_PROPOSALS.md) compiles selected
+methods into new, executable standalone Python source files, checks
+them in a separate subprocess, archives all evidence every four hours,
+and never automatically merges or deploys generated code.
+
 ## Limits — must not be confused with breakthroughs
 
 - No mutation of GitHub source files or automatic deploys. Research
