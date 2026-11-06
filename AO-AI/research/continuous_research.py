@@ -20,6 +20,23 @@ import time
 from daily_study import END, METHODS, START, run_study
 from discovery import Hypothesis, discover
 from interaction_integrity import experiment as integrity_experiment
+from method_evolution import Recipe, evolve_method
+
+def load_training_recipe(path: Path | None) -> Recipe | None:
+    """Recover ONLY a validated, training-selected structural recipe."""
+    if path is None or not path.is_file() or path.stat().st_size > 1_000_000:
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(raw, dict) or raw.get("synthetic_only") is not True:
+            return None
+        history = raw.get("method_evolution_outcomes", [])
+        if not isinstance(history, list) or not history:
+            return None
+        return Recipe.from_data(history[-1]["recipe"])
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return None
+
 
 def load_training_policy(path: Path | None) -> Hypothesis | None:
     """Read data only. Prior artifacts may seed TRAINING, never code or trust."""
@@ -70,8 +87,11 @@ def run_series(run_date: date, run_key: int, duration_seconds: float = 0,
     if max_experiments == 0 and duration_seconds == 0:
         raise ValueError("Unbounded run: specify a positive duration")
     prior_policy = load_training_policy(resume)
+    prior_recipe = load_training_recipe(resume)
     report = {
         "prior_training_policy_loaded": prior_policy is not None,
+        "prior_training_method_loaded": prior_recipe is not None,
+        "bounded_method_composition_enabled": True,
         "status": "experiment_series",
         "run_date": str(run_date),
         "run_key": run_key,
@@ -87,6 +107,8 @@ def run_series(run_date: date, run_key: int, duration_seconds: float = 0,
         "parameter_sweep": {},
         "research_hypothesis_rounds": 0,
         "research_hypothesis_outcomes": [],
+        "method_evolution_rounds": 0,
+        "method_evolution_outcomes": [],
         "last_interaction_integrity_control": None,
         "limitations": [
             "Known baseline heuristics only; no AI researcher running on its own.",
@@ -165,6 +187,29 @@ def run_series(run_date: date, run_key: int, duration_seconds: float = 0,
             # Include only a bounded recent activity trail; full history is not
             # preserved across runs and repeated holdout scoring is exploratory.
             report["research_hypothesis_outcomes"] = report["research_hypothesis_outcomes"][-25:]
+        if i % 25 == 0:
+            # Grow/shrink/rewire bounded search methods as validated DATA.
+            # Select on training only; report a disjoint exploratory holdout.
+            method_result = evolve_method(
+                run_key=run_key * 100000 + i, inherited=prior_recipe,
+                train_count=20, holdout_count=60, budget=12,
+                population=6, generations=3,
+            )
+            prior_recipe = Recipe.from_data(method_result["recipe"])
+            report["method_evolution_rounds"] += 1
+            report["method_evolution_outcomes"].append({
+                "round": i,
+                "recipe": method_result["recipe"],
+                "methods_evaluated": method_result["methods_evaluated"],
+                "growth_mutations": method_result["growth_mutations"],
+                "selected_component_count": method_result["selected_component_count"],
+                "training_gain_over_inherited": method_result["training_gain_over_inherited"],
+                "holdout_delta": method_result["holdout_delta"],
+                "holdout_ci95": method_result["holdout_ci95"],
+                "source_code_modified_by_worker": False,
+                "research_breakthrough_claim": False,
+            })
+            report["method_evolution_outcomes"] = report["method_evolution_outcomes"][-10:]
         # Intermediate, atomic results preserve progress if a later iteration fails.
         if output and (i <= 2 or i % 25 == 0):
             report["finished_utc"] = datetime.now(timezone.utc).isoformat()
