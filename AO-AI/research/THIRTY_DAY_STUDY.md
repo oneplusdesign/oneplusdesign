@@ -14,9 +14,19 @@
 
 Each scheduled session also executes a constrained evolutionary search of optimizer policy hypotheses: generate candidate configurations, evaluate them on training cases, select and mutate promising candidates, freeze a selected policy, and evaluate against a training-selected baseline on disjoint holdout cases. This is documented in [DISCOVERY_PROTOCOL.md](DISCOVERY_PROTOCOL.md). Results are exploratory; no scientific novelty or advantage has been demonstrated.
 
+### Self-expanding search-method compositions
+
+Every 25 short baseline experiments, a separate
+[method-evolution engine](METHOD_EVOLUTION.md) combines, adds, removes and
+reweights safe search features and exploration operators. It evaluates
+candidate methods on training data, freezes the training-selected winner,
+and compares it once on synthetic holdout cases. Only validated recipe
+data may carry over to later sessions. It does **not** write or deploy
+Python code, update model weights, or claim any real-world benefit.
+
 ### Learning between scheduled runs
 
-At the beginning of each scheduled session, a read-only GitHub CLI step attempts to retrieve the prior successful research run's own JSON report artifact. Only the latest **training-selected policy configuration** may be reused as a seed for the next round's candidate generation, and only after strict schema validation. The previous holdout scores are **not** used to choose a policy. Missing/expired artifacts are allowed; the experiment then starts with a fresh training population. No downloaded data is executed as code.
+At the beginning of each scheduled session, a read-only GitHub CLI step attempts to retrieve the prior successful research run's own JSON report artifact. Only the latest **training-selected policy configuration** or **validated method recipe** may be reused as a seed for the next round's candidate generation, and only after strict schema validation. The previous holdout scores are **not** used to choose a policy. Missing/expired artifacts are allowed; the experiment then starts with a fresh training population. No downloaded data is executed as code.
 
 ### Interaction integrity control suite
 
