@@ -8,13 +8,14 @@ deterministic program synthesis, NOT an unrestricted AI agent that
 invented wholly new algorithms or improves itself generally.
 
 The separate GitHub workflow ao-ai-code-proposals.yml runs every four
-hours on a best-effort schedule during 2026-11-06 to 2026-12-05 UTC.
+hours on a best-effort schedule during 2026-11-06 to 2027-05-06 UTC.
 No user login is needed.
 
 ### Each proposal cycle
 
-1. Load the last training-selected recipe as schema-validated JSON from
+1. Load the last PROMOTED research champion as schema-validated JSON from
    the previous successful experiment; never execute prior artifacts.
+   If no candidate has passed all gates, begin without a champion.
 2. Train-select a new structural method using human-defined components.
 3. Evaluate it on disjoint synthetic holdout cases against an established
    baseline selected on training cases only.
@@ -23,9 +24,18 @@ No user login is needed.
 5. In a separate process, check source byte-for-byte against the trusted
    whitelist compiler and execute 30 paired conformance tests across
    five synthetic regimes. Reject any discrepancy or invalid budgets.
-6. Archive the complete Python source, SHA256 and evidence, including
-   *negative* holdout results, without cherry-picking.
-7. Repeat with fresh examples and a previous validated training recipe.
+6. Run a second, stricter qualification on 1,000 fresh synthetic cases,
+   five seeds and five regimes, against both established baselines and
+   the previous champion. Require a >5pp advantage, positive 95% paired
+   CI lower bound, nonnegative effect in every regime, no false Pareto
+   claims or budget violations, and candidate CPU time within 1.5x
+   each comparator.
+7. If ALL tests pass, remember only the newly selected JSON recipe as
+   the next research champion; otherwise carry forward the previous
+   champion without overwriting it. No source merge or deployment.
+8. Archive the Python source, SHA256, full verification.json,
+   champion.json and cycle.json, including negative results.
+9. Repeat automatically with fresh examples and the last accepted champion.
 
 ### Strict controls
 
@@ -35,7 +45,9 @@ No user login is needed.
   arbitrary model-provided strings, plugins or downloaded code.
 - Generated code is executed in a subprocess with a stripped environment
   and a timeout. This does not constitute a hardened container.
-- The manifest declares automatic_merge_allowed: false.
+- The manifest declares automatic_merge_allowed: false, and the gate never
+  allows real-world application or code deployment. See the
+  [Good-of-All Safety Contract](SAFETY_AND_GOVERNANCE.md).
 - Correctness checks prove conformance to a defined synthetic method,
   not scientific innovation or real-world human well-being.
 - Holdout outcomes are exploratory, without independent replication.
