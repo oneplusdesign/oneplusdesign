@@ -46,6 +46,26 @@ research workflow automatically. It stops after the 30-day trial,
 avoids duplicate runs, and does not require the user to be logged in.
 The watchdog itself is also subject to GitHub schedule delays/drops.
 
+### Separate six-month closed-loop self-improvement
+
+The original high-frequency baseline study is intentionally limited
+to 30 days. A **separate scheduled, read-only [code evolution loop](CODE_PROPOSALS.md)**
+runs every four hours through **2027-05-06 UTC**, and has an explicit
+[Good-of-All Safety Contract](SAFETY_AND_GOVERNANCE.md).
+
+It automatically generates executable candidate code from a fixed
+method grammar, verifies 30 paired conformance cases and 1,000
+fresh synthetic held-out cases over five seeds, and stores ONLY a
+validated research JSON recipe if the independent gate beats both
+existing reference baselines and the previous champion with
+predefined statistical, compute and per-regime constraints.
+
+Failed candidates never overwrite the champion. The method's generated
+source is review-only and no research worker can change production
+code, external systems, permissions or any real-world behavior.
+The separately scheduled ChatGPT research task can attempt
+human-reviewable code revisions, subject to connected tool access.
+
 ### What this does NOT do
 
 - No real-world data, model weights, paid external AI API or arbitrary executable-code generation is involved. The automatic hypothesis generator operates within a fixed, auditable parameter grammar.
