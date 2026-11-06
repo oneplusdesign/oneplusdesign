@@ -1,7 +1,7 @@
 name: AΩ AI — autonomous code-proposal research
 on:
   schedule:
-    # Every four hours during the 30-day study, best-effort.
+    # Research-only cycle every four hours until 2027-05-06 UTC; best-effort.
     - cron: '23 1,5,9,13,17,21 * * *'
   workflow_dispatch:
   push:
@@ -24,7 +24,7 @@ jobs:
         run: |
           set -euo pipefail
           TODAY="$(date -u +%Y-%m-%d)"
-          if [[ "$TODAY" > "2026-11-05" && "$TODAY" < "2026-12-06" ]]; then
+          if [[ "$TODAY" > "2026-11-05" && "$TODAY" < "2027-05-07" ]]; then
             echo "active=true" >> "$GITHUB_OUTPUT"
           else
             echo "active=false" >> "$GITHUB_OUTPUT"
@@ -34,10 +34,10 @@ jobs:
         if: steps.window.outputs.active == 'true'
         with:
           persist-credentials: false
-      - name: Test the code-proposal compiler and integrity gates
+      - name: Verify generation, independent validation and retention safety gates
         if: steps.window.outputs.active == 'true'
-        run: python3 -m unittest discover -s AO-AI/research -p 'test_code_proposals.py' -v
-      - name: Recover prior training-selected recipe as JSON data only
+        run: python3 -m unittest discover -s AO-AI/research -p 'test_*.py' -q
+      - name: Recover previous approved research recipe as JSON data only
         if: steps.window.outputs.active == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -57,10 +57,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 AO-AI/research/code_proposals.py \
+          python3 AO-AI/research/self_improve.py \
             --run-key "$GITHUB_RUN_ID" \
             --output-dir candidate \
-            --previous-report previous/proposal.json \
+            --previous-champion previous/champion.json \
             --train-count 60 \
             --holdout-count 200 \
             --population 10 \
@@ -73,9 +73,11 @@ jobs:
           import json
           from pathlib import Path
           r = json.loads(Path("candidate/proposal.json").read_text())
-          print(f"Previous validated training recipe inherited: {r['inherited_recipe_used']}")
-          print(f"Methods tested: {r['methods_evaluated']}; holdout delta: {r['holdout_delta']}")
-          print("Candidate code is not deployed or merged.")
+          c = json.loads(Path("candidate/cycle.json").read_text())
+          print(f"Previous validated research champion: {c['previous_validated_champion_used']}")
+          print(f"Independent cases: {c['independent_synthetic_cases']}, seeds: {c['independent_seed_blocks']}")
+          print(f"Research-only promotion decision: {c['gate_decision']}")
+          print("No source merge, deployment or real-world activity.")
           PY
       - name: Archive reproducible proposed source and evidence
         if: steps.window.outputs.active == 'true'
@@ -85,5 +87,8 @@ jobs:
           path: |
             candidate/candidate_optimizer.py
             candidate/proposal.json
+            candidate/verification.json
+            candidate/champion.json
+            candidate/cycle.json
           retention-days: 35
           if-no-files-found: error
