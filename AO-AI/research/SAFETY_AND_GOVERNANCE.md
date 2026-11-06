@@ -15,7 +15,7 @@ authority*, bounded computation, transparent evidence and human control.
 
 ## Six-month operating cycle
 
-The scheduled code-proposal workflow runs every four hours, best-effort,
+The scheduled code-proposal workflow runs every ten minutes, best-effort,
 between 2026-11-06 and 2027-05-06 inclusive, UTC.
 
 1. Load the prior promoted synthetic research champion as schema-validated
