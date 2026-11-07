@@ -1,4 +1,5 @@
 """Deterministic, negative-control tests for isolated archive experiment."""
+import json
 import unittest
 
 from benchmark import Action, Case
@@ -78,6 +79,18 @@ class ArchiveTrialTests(unittest.TestCase):
                         self.assertEqual(a[key][m][field], b[key][m][field])
             else:
                 self.assertEqual(a[key], b[key])
+
+    def test_full_frozen_holdout_report_no_performance_claim(self):
+        # One pre-specified 1,000-case synthetic comparison, logged as
+        # exploratory evidence, NOT used as an acceptance/promotion gate.
+        report = compare(seed_key=20261107, seeds=5,
+                         cases_per_seed=200, budget=12)
+        self.assertEqual(report["heldout_cases"], 1000)
+        self.assertEqual(report["hard_constraint_violations"], 0)
+        self.assertFalse(report["independent_replication"])
+        self.assertFalse(report["real_world_application_allowed"])
+        print("AO_ARCHIVE_HELDOUT_REPORT=" + json.dumps(
+            report, sort_keys=True), flush=True)
 
 
 if __name__ == "__main__":
