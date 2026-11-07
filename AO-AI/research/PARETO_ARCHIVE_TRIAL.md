@@ -84,6 +84,33 @@ this local environment. **H1 is not supported**. The full repository
 and CI results take precedence over this reconstructed local dry run.
 No method tuning should be performed on these held-out cases.
 
+## Exact repository CI result (authoritative for this branch)
+
+The complete 1,000-case frozen comparison ran against the actual GitHub
+repository modules in [core-tests run 42351514635](https://github.com/oneplusdesign/oneplusdesign/actions/runs/42351514635),
+2026-11-07 07:30 UTC. All **97 technical tests passed**. The log
+contains the complete machine-readable `AO_ARCHIVE_HELDOUT_REPORT=` JSON.
+This is *not* a positive scientific result:
+
+| Method | Discoveries/1000 | Archive difference | Archive CPU ratio |
+|---|---:|---:|---:|
+| Archive-guided | 542 | reference | 1.0000 |
+| Single-anchor ablation | 565 | -2.3 pp | 1.0470 |
+| Weighted local | 551 | -0.9 pp | 1.4203 |
+| Maximin local | 532 | +1.0 pp | **1.5548** |
+| Uniform random | 524 | +1.8 pp | 5.3285 |
+
+Seed-block paired 95% CI of archive-minus-ablation: **[-4.3, -0.4] pp**;
+archive-minus-weighted: **[-2.2, +0.4] pp**;
+archive-minus-maximin: **[-0.3, +2.3] pp**.
+Zero synthetic hard-constraint violations, equal 12 objective queries.
+The archive method underperforms the ablation and weighted baseline,
+and exceeds the 1.5x maximin compute ceiling. It regresses in several
+regimes. **H1 fails; no promotion or integration is warranted.**
+
+The exact results agree on discovery counts with the earlier reconstructed
+local dry run. CPU timing ratios differ across machines, as expected.
+
 ## Prior art — no claim of originality
 
 - Paquete, Chiarandini & Stützle (2004), *Pareto Local Optimum Sets*:
