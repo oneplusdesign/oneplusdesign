@@ -1,17 +1,13 @@
 name: AΩ AI — core tests
+# PAUSED at repository owner's explicit request on 2026-11-09.
+# No schedules, push or pull_request triggers. All jobs intentionally disabled.
 on:
-  push:
-    paths:
-      - 'AO-AI/**'
-      - '.github/workflows/ao-ai-core.yml'
-  pull_request:
-    paths:
-      - 'AO-AI/**'
-      - '.github/workflows/ao-ai-core.yml'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
   core-tests:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
