@@ -1,14 +1,13 @@
 name: AΩ AI — first hypothesis discovery experiment
+# PAUSED at repository owner's explicit request on 2026-11-09.
+# No schedules, push or pull_request triggers. All jobs intentionally disabled.
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/ao-ai-first-discovery.yml'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   hypothesis_experiment:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
