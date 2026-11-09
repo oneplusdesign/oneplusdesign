@@ -1,20 +1,13 @@
 name: AΩ AI — infrastructure container smoke test
+# PAUSED at repository owner's explicit request on 2026-11-09.
+# No schedules, push or pull_request triggers. All jobs intentionally disabled.
 on:
-  push:
-    paths:
-      - 'AO-AI/Dockerfile'
-      - 'AO-AI/compose.yaml'
-      - 'AO-AI/.dockerignore'
-      - 'AO-AI/research/always_on_worker.py'
-      - 'AO-AI/research/test_always_on_worker.py'
-      - 'AO-AI/research/self_improve.py'
-      - 'AO-AI/research/verification_gate.py'
-      - '.github/workflows/ao-ai-infrastructure-ci.yml'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   container-smoke:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
