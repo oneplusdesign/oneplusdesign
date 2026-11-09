@@ -1,8 +1,7 @@
 name: AΩ AI — consecutive research cycles
+# PAUSED at repository owner's explicit request on 2026-11-09.
+# No schedules, push or pull_request triggers. All jobs intentionally disabled.
 on:
-  schedule:
-    # Near-continuous: every 30 minutes (UTC). GitHub may delay or drop runs.
-    - cron: '7,37 * * * *'
   workflow_dispatch:
 permissions:
   contents: read
@@ -12,6 +11,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   series:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 29
     steps:
