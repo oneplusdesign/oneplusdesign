@@ -1,15 +1,8 @@
 name: AΩ AI — missed-run recovery watchdog
+# PAUSED at repository owner's explicit request on 2026-11-09.
+# No schedules, push or pull_request triggers. All jobs intentionally disabled.
 on:
-  schedule:
-    # A separate schedule, offset from the main :07/:37 research schedule.
-    # GitHub's scheduler itself is best effort: this is not an uptime SLA.
-    - cron: '18,48 * * * *'
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/ao-ai-watchdog.yml'
-      - 'AO-AI/research/watchdog.py'
-      - 'AO-AI/research/test_watchdog.py'
 permissions:
   contents: read
   # GitHub workflow_dispatch requires actions:write.
@@ -20,6 +13,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   check:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
