@@ -1,13 +1,8 @@
 name: AΩ AI — autonomous code-proposal research
+# PAUSED at repository owner's explicit request on 2026-11-09.
+# No schedules, push or pull_request triggers. All jobs intentionally disabled.
 on:
-  schedule:
-    # Ten-minute best-effort schedule; watchdog recovers missed runs.
-    # Training-only seed carries hypotheses, while promotion remains independently gated.
-    - cron: '3,13,23,33,43,53 * * * *'
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/ao-ai-code-proposals.yml'
 permissions:
   contents: read
   actions: read
@@ -16,6 +11,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   proposals:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
