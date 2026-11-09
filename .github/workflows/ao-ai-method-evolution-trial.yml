@@ -1,13 +1,13 @@
 name: AΩ AI — first compositional method-evolution trial
+# PAUSED at repository owner's explicit request on 2026-11-09.
+# No schedules, push or pull_request triggers. All jobs intentionally disabled.
 on:
-  push:
-    paths:
-      - '.github/workflows/ao-ai-method-evolution-trial.yml'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   trial:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
